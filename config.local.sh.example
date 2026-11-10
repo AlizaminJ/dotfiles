@@ -1,0 +1,15 @@
+# Copy to config.local.sh and fill in your details before running bootstrap.
+# Keep passwords, tokens, and private keys out of this file.
+# Optional public identity for this dotfiles repository only (GitHub handle/noreply).
+PUBLIC_GIT_NAME=""
+PUBLIC_GIT_EMAIL=""
+
+PERSONAL_NAME=""
+PERSONAL_EMAIL=""
+PERSONAL_KEY_NAME="id_personal"
+PERSONAL_ROOT="$HOME/workspace/personal"
+
+WORK_NAME=""
+WORK_EMAIL=""
+WORK_KEY_NAME="id_work"
+WORK_ROOT="$HOME/workspace/work"

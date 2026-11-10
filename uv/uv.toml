@@ -1,0 +1,7 @@
+# Apply the same age floor to uv's project/tool resolver and pip interface.
+exclude-newer = "7 days"
+no-build = true
+
+[pip]
+exclude-newer = "7 days"
+no-build = true

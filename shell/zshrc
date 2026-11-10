@@ -1,0 +1,71 @@
+# Interactive shell only; scripts should not load prompts or keyboard bindings.
+[[ -o interactive ]] || return
+[[ -n ${DOTFILES_SHELL_LOADED:-} ]] && return
+typeset -g DOTFILES_SHELL_LOADED=1
+typeset -g DOTFILES_SHELL_DIR=${${(%):-%x}:A:h}
+HISTFILE=$HOME/.zsh_history
+HISTSIZE=50000
+SAVEHIST=50000
+
+# Keep machine-specific paths, helpers, and credentials outside the repository.
+[[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
+
+# GUI terminals on a fresh Mac may not inherit Homebrew's PATH.
+for prefix in /opt/homebrew /usr/local; do
+  if [[ -x "$prefix/bin/brew" ]]; then
+    typeset -g HOMEBREW_PREFIX=$prefix
+    path=("$prefix/bin" "$prefix/sbin" $path)
+    fpath=("$prefix/share/zsh/site-functions" $fpath)
+    break
+  fi
+done
+path=("$DOTFILES_SHELL_DIR/../bin" $path)
+typeset -U path fpath
+export PATH
+export EDITOR=${EDITOR:-nvim}
+export VISUAL=${VISUAL:-$EDITOR}
+
+setopt append_history share_history hist_ignore_all_dups hist_ignore_space
+setopt extended_history interactive_comments
+bindkey -e
+
+autoload -Uz compinit
+# Ignore insecure completion directories rather than trusting them or disabling checks.
+compinit -i
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+
+source "$DOTFILES_SHELL_DIR/aliases.zsh"
+
+# Make manager commands available on demand, without running its loader on startup.
+antidote() {
+  local manager=${ANTIDOTE_ZSH:-${HOMEBREW_PREFIX:-/usr/local}/opt/antidote/share/antidote/antidote.zsh}
+  if [[ ! -r "$manager" ]]; then
+    print -u2 'Antidote is not installed; use the reviewed installation steps in docs/shell.md.'
+    return 1
+  fi
+  unfunction antidote
+  source "$manager"
+  antidote "$@"
+}
+
+if (( $+commands[fzf] )) && [[ ${DOTFILES_DISABLE_FZF:-0} != 1 ]]; then
+  eval "$(fzf --zsh)"
+fi
+if (( $+commands[zoxide] )) && [[ ${DOTFILES_DISABLE_ZOXIDE:-0} != 1 ]]; then
+  eval "$(zoxide init zsh)"
+fi
+if (( $+commands[starship] )) && [[ ${DOTFILES_DISABLE_STARSHIP:-0} != 1 ]]; then
+  export STARSHIP_CONFIG=${STARSHIP_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/starship.toml}
+  eval "$(starship init zsh)"
+fi
+
+# Shell startup never downloads plugins. Setup explicitly builds this local cache.
+typeset -g DOTFILES_PLUGIN_CACHE=${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/plugins.zsh
+if [[ -r "$DOTFILES_PLUGIN_CACHE" && -r "$DOTFILES_PLUGIN_CACHE.manifest" ]] &&
+   [[ "$(cksum < "$DOTFILES_SHELL_DIR/plugins.txt")" == "$(<"$DOTFILES_PLUGIN_CACHE.manifest")" ]]; then
+  # Plugins load after completions and keyboard integrations; highlighting is last.
+  source "$DOTFILES_PLUGIN_CACHE"
+else
+  print -u2 'Shell plugins not prepared or pins changed. Run: bash scripts/shell-plugins.sh from your dotfiles checkout.'
+fi

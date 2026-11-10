@@ -1,0 +1,95 @@
+#!/bin/bash
+# Give existing setup scripts a single entry point without duplicating their work.
+set -euo pipefail
+
+SOURCE="${BASH_SOURCE[0]}"
+while [[ -L "$SOURCE" ]]; do
+  DIRECTORY="$(cd -- "$(dirname "$SOURCE")" && pwd -P)"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ "$SOURCE" == /* ]] || SOURCE="$DIRECTORY/$SOURCE"
+done
+export REPO_ROOT
+REPO_ROOT="$(cd -- "$(dirname "$SOURCE")/.." && pwd -P)"
+
+usage() {
+  printf '%s\n' \
+    'Usage: dotfiles [--dry-run] COMMAND [ARGUMENT]' \
+    '' \
+    '  doctor [directory]     Read-only health check (defaults to your current directory)' \
+    '  agents                 Link shared Pi/Claude/Copilot instructions' \
+    '  editors                Link Neovim and tmux configuration' \
+    '  shell                  Link zsh, Starship, and WezTerm configuration only' \
+    '  plugins                Fetch reviewed pinned shell plugins with Antidote' \
+    '  pnpm                   Apply global pnpm safeguards' \
+    '  uv                     Link uv safeguards without installing uv' \
+    '  git-ssh                Apply workspace Git identities and SSH configuration' \
+    '  macos                  Apply macOS preferences and restart Finder/Dock' \
+    '  homebrew               Age-check/install missing Brewfile packages; no upgrades' \
+    '  verify-wezterm [app]   Check macOS signing and notarization' \
+    '  secrets                Scan public files, index, and available Git history' \
+    '  test                   Run repository tests' \
+    '  setup                  Run the full bootstrap (installs/applies configuration)' \
+    '  help                   Show this help' \
+    '' \
+    '--dry-run prints the command without running scripts, tests, or installers.'
+}
+
+DRY_RUN=false
+if [[ "${1:-}" == --dry-run ]]; then
+  DRY_RUN=true
+  shift
+  [[ "$#" -gt 0 ]] || { echo "❌ --dry-run requires a command." >&2; exit 2; }
+fi
+COMMAND="${1:-help}"
+[[ "$#" -eq 0 ]] || shift
+DIRECTORY=""
+MAX_ARGS=0
+
+case "$COMMAND" in
+  help|-h|--help)
+    [[ "$#" -eq 0 ]] || { echo "❌ Help takes no arguments." >&2; exit 2; }
+    usage
+    exit 0
+    ;;
+  doctor|verify-wezterm)
+    RUN=(bash "$REPO_ROOT/scripts/$COMMAND.sh")
+    MAX_ARGS=1
+    ;;
+  agents|editors|shell|pnpm|uv|git-ssh|macos|homebrew|plugins)
+    SCRIPT="$COMMAND"
+    [[ "$COMMAND" != macos ]] || SCRIPT=macos-defaults
+    [[ "$COMMAND" != plugins ]] || SCRIPT=shell-plugins
+    RUN=(bash "$REPO_ROOT/scripts/$SCRIPT.sh")
+    ;;
+  secrets)
+    RUN=(python3 "$REPO_ROOT/scripts/check-secrets.py")
+    ;;
+  test)
+    DIRECTORY="$REPO_ROOT"
+    RUN=(python3 -m unittest discover -s tests -v)
+    ;;
+  setup)
+    RUN=(bash "$REPO_ROOT/bootstrap.sh")
+    ;;
+  *)
+    printf '❌ Unknown command: %s. Run dotfiles help.\n' "$COMMAND" >&2
+    exit 2
+    ;;
+esac
+if [[ "$#" -gt "$MAX_ARGS" ]]; then
+  printf '❌ Unexpected arguments for %s. Run dotfiles help.\n' "$COMMAND" >&2
+  exit 2
+fi
+
+if [[ "$DRY_RUN" == true ]]; then
+  printf '↪ Preview only; nothing will run.\n'
+  if [[ -n "$DIRECTORY" ]]; then
+    printf 'cd %q\n' "$DIRECTORY"
+  fi
+  printf 'REPO_ROOT=%q ' "$REPO_ROOT"
+  printf '%q ' "${RUN[@]}" "$@"
+  printf '\n'
+  exit 0
+fi
+[[ -z "$DIRECTORY" ]] || cd -- "$DIRECTORY"
+exec "${RUN[@]}" "$@"

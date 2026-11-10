@@ -1,0 +1,36 @@
+#!/bin/bash
+# Keep each project in its own resumable tmux session, including separate worktrees.
+set -euo pipefail
+
+if [[ "${1:-}" == -h || "${1:-}" == --help ]]; then
+  echo "Usage: tat [project-directory]"
+  exit 0
+fi
+if [[ "$#" -gt 1 ]]; then
+  echo "Usage: tat [project-directory]" >&2
+  exit 1
+fi
+command -v tmux >/dev/null 2>&1 || { echo "❌ tmux is not installed." >&2; exit 1; }
+ROOT="$(cd -- "${1:-$PWD}" && pwd -P)"
+if command -v git >/dev/null 2>&1 && GIT_ROOT="$(git -C "$ROOT" rev-parse --show-toplevel 2>/dev/null)"; then
+  ROOT="$(cd -- "$GIT_ROOT" && pwd -P)"
+fi
+
+# A readable name plus a path hash separates projects with identical folder names.
+command -v shasum >/dev/null 2>&1 || { echo "❌ shasum is required to identify project sessions." >&2; exit 1; }
+DIGEST="$(printf '%s' "$ROOT" | shasum -a 256)"
+BASE="${ROOT##*/}"
+BASE="$(printf '%s' "${BASE:-root}" | LC_ALL=C tr -c 'A-Za-z0-9_-' '-')"
+SESSION="${BASE:0:32}-${DIGEST:0:16}"
+
+if [[ -z "${TMUX:-}" ]]; then
+  exec tmux new-session -A -s "$SESSION" -c "$ROOT"
+fi
+
+if ! tmux has-session -t "=$SESSION" 2>/dev/null; then
+  # Another client may have created it since the check; reuse it if so.
+  if ! tmux new-session -d -s "$SESSION" -c "$ROOT"; then
+    tmux has-session -t "=$SESSION" || exit 1
+  fi
+fi
+exec tmux switch-client -t "=$SESSION"

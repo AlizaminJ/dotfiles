@@ -1,0 +1,66 @@
+name: Checks
+
+'on':
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        # Reviewed upstream snapshot dated 2026-07-16; no npm install at runtime.
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+          submodules: false
+          lfs: false
+      - name: Lint Bash scripts
+        shell: bash
+        run: |
+          command -v shellcheck
+          shellcheck --external-sources --shell=bash bootstrap.sh bin/* scripts/*.sh
+
+  macos:
+    name: macOS syntax and tests
+    runs-on: macos-15
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+          submodules: false
+          lfs: false
+          fetch-depth: 0
+      - name: Scan public files and Git history for secrets
+        shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+        run: /bin/bash bin/dotfiles secrets
+      - name: Check system Bash and zsh syntax
+        shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+        run: |
+          /bin/bash --version
+          /bin/zsh --version
+          for script in bootstrap.sh bin/* scripts/*.sh; do
+            /bin/bash -n "$script"
+          done
+          for config in shell/zshrc shell/*.zsh; do
+            /bin/zsh -n "$config"
+          done
+      - name: Run tests without provisioning the runner
+        shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          command -v python3
+          /bin/bash bin/dotfiles test
