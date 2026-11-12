@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Fail closed unless new Homebrew recipes have verifiable, sufficiently old sources."""
+"""Fail closed unless new Homebrew recipes have verifiable, sufficiently old sources.
+
+We check recipe edit dates, not binary release dates. Existing installations
+and dependencies bundled inside binaries aren't checked here.
+"""
 
 import argparse
 import base64

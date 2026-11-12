@@ -24,13 +24,19 @@ Entry point: `bash bootstrap.sh`.
   and Gatekeeper notarization acceptance. No security bypass or app launch.
 - `scripts/shell-plugins.sh` — prepares reviewed immutable plugin pins through
   Antidote. Startup must not download plugins or run an automatic updater.
-- `shell/`, `wezterm/` — macOS settings; keep private shell helpers out of Git.
+- `shell/`, `wezterm/` — macOS settings; generic helpers require explicit targets.
+  Keep private aliases, profiles, locations, and project paths out of Git.
   WezTerm handles rendering only; leave pane/session shortcuts to tmux.
 - `scripts/uv.sh`, `uv/uv.toml` — user uv age/build preferences; does not install uv.
-- `docs/shell.md`, `docs/dependency-safety.md` — usage, rollback, and installer limits.
+- `docs/onboarding.md`, `docs/usage.md` — setup, everyday commands, and recovery.
+  Safety policy lives in shared rules/skills; installer evidence stays with its code.
 - `scripts/macos-defaults.sh` — `defaults write` tweaks for Finder/Dock/keyboard.
 - `scripts/doctor.sh` — read-only health check, run manually with an optional
   project directory. Reports issues without installing or repairing anything.
+- `scripts/ssh-keys.sh` / `scripts/ssh-keys.py` — interactive missing-key generation
+  and account-verified/confirmed GitHub registration. Never overwrite existing keys,
+  create empty passphrases automatically, print key/token contents, or guess accounts.
+  Tests must use fake keygen/API clients, never real keys or account calls.
 - `scripts/git-ssh.sh` — writes `~/.gitconfig`, `~/.gitconfig-personal`,
   `~/.gitconfig-work`, and `~/.gitignore_global`, and appends the SSH account block.
   Git identities apply only inside `PERSONAL_ROOT` and `WORK_ROOT`; outside those
@@ -50,12 +56,14 @@ Entry point: `bash bootstrap.sh`.
 - `bin/tat` — create/resume a project tmux session, or switch clients inside tmux.
   Managed zsh adds `bin/` to PATH. Keep tests on an isolated tmux socket.
 - `Brewfile` — package list consumed by `scripts/homebrew.sh`.
-- `agents/AGENTS.md` — shared, tool-neutral instructions for all repositories
-  and machines. Keep this root file specific to the dotfiles repository.
+- `agents/AGENTS.md` — minimal shared, tool-neutral rules; `agents/skills/` holds
+  code-review, security-review, and essayist workflows. Keep this root file repository-specific.
 - `scripts/agents.sh` — links the shared file at `~/.agents/AGENTS.md` and
   installs Pi, Claude, and VS Code Copilot references. Pi respects
   `PI_CODING_AGENT_DIR`; only its instruction file is managed, never runtime state.
-  See `docs/agents.md`. Run with
+  Only the named skill files and essayist's writing guide are linked under `~/.agents/skills/`;
+  unrelated skills and backups stay untouched.
+  See `docs/usage.md` (Agents). Run with
   `bash scripts/agents.sh` to configure agents without running full setup.
 
 ## Conventions for new/changed scripts

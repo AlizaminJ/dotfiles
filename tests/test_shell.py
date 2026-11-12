@@ -49,7 +49,7 @@ class ShellTest(unittest.TestCase):
     @unittest.skipUnless(shutil.which("zsh"), "zsh unavailable")
     def test_startup_loads_local_settings_and_prepared_cache_without_framework(self):
         self.setup_shell()
-        (self.home / ".zshrc.local").write_text("export TEST_LOCAL_SETTING=preserved\n")
+        (self.home / ".zshrc.local").write_text("export TEST_LOCAL_SETTING=preserved\nalias gs='git status --porcelain'\n")
         cache = self.home / ".cache/dotfiles/plugins.zsh"
         cache.parent.mkdir(parents=True)
         cache.write_text("typeset -g TEST_PLUGIN_LOADED=1\n")
@@ -58,7 +58,8 @@ class ShellTest(unittest.TestCase):
         result = subprocess.run([
             "zsh", "-d", "-i", "-c",
             '[[ "$TEST_LOCAL_SETTING" == preserved && "$TEST_PLUGIN_LOADED" == 1 && "$EDITOR" == nvim ]] && '
-            '(( $+functions[compdef] )) && command -v tat >/dev/null && command -v dotfiles >/dev/null && '
+            '(( $+functions[compdef] && $+functions[get-secret] )) && command -v tat >/dev/null && command -v dotfiles >/dev/null && '
+            '[[ "$(alias gs)" == *"git status --porcelain"* ]] && '
             '[[ -z ${ZSH:-} && "$HISTSIZE" == 50000 && "$SAVEHIST" == 50000 ]]',
         ], env=dict(self.env, EDITOR="", ZSH=""), capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

@@ -35,7 +35,7 @@ exit "${STUB_EXIT:-0}"
         self.scripts = {
             'agents': 'agents', 'editors': 'editors', 'shell': 'shell',
             'plugins': 'shell-plugins', 'pnpm': 'pnpm', 'uv': 'uv',
-            'git-ssh': 'git-ssh', 'macos': 'macos-defaults', 'homebrew': 'homebrew',
+            'git-ssh': 'git-ssh', 'ssh-keys': 'ssh-keys', 'macos': 'macos-defaults', 'homebrew': 'homebrew',
             'doctor': 'doctor', 'verify-wezterm': 'verify-wezterm',
         }
         for script in self.scripts.values():
@@ -54,7 +54,7 @@ exit "${STUB_EXIT:-0}"
 
     def test_help_and_preview_run_nothing(self):
         for args in [(), ('help',), ('--help',), ('--dry-run', 'setup'),
-                     ('--dry-run', 'plugins'), ('--dry-run', 'doctor', 'path with spaces')]:
+                     ('--dry-run', 'plugins'), ('--dry-run', 'ssh-keys'), ('--dry-run', 'doctor', 'path with spaces')]:
             with self.subTest(args=args):
                 result = self.run_wrapper(*args)
                 self.assertEqual(result.returncode, 0, result.stderr)

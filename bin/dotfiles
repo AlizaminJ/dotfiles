@@ -16,12 +16,13 @@ usage() {
     'Usage: dotfiles [--dry-run] COMMAND [ARGUMENT]' \
     '' \
     '  doctor [directory]     Read-only health check (defaults to your current directory)' \
-    '  agents                 Link shared Pi/Claude/Copilot instructions' \
+    '  agents                 Link shared instructions and managed skills' \
     '  editors                Link Neovim and tmux configuration' \
     '  shell                  Link zsh, Starship, and WezTerm configuration only' \
     '  plugins                Fetch reviewed pinned shell plugins with Antidote' \
     '  pnpm                   Apply global pnpm safeguards' \
     '  uv                     Link uv safeguards without installing uv' \
+    '  ssh-keys               Create/reuse keys; confirm GitHub login and registration' \
     '  git-ssh                Apply workspace Git identities and SSH configuration' \
     '  macos                  Apply macOS preferences and restart Finder/Dock' \
     '  homebrew               Age-check/install missing Brewfile packages; no upgrades' \
@@ -55,7 +56,7 @@ case "$COMMAND" in
     RUN=(bash "$REPO_ROOT/scripts/$COMMAND.sh")
     MAX_ARGS=1
     ;;
-  agents|editors|shell|pnpm|uv|git-ssh|macos|homebrew|plugins)
+  agents|editors|shell|pnpm|uv|ssh-keys|git-ssh|macos|homebrew|plugins)
     SCRIPT="$COMMAND"
     [[ "$COMMAND" != macos ]] || SCRIPT=macos-defaults
     [[ "$COMMAND" != plugins ]] || SCRIPT=shell-plugins

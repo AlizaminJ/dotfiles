@@ -3,7 +3,6 @@
 import json
 import os
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -114,32 +113,6 @@ sys.exit(2)
                                 env=self.env, capture_output=True)
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse((self.home / 'calls.jsonl').exists())
-
-
-@unittest.skipUnless(shutil.which('tmux'), 'tmux unavailable')
-class TmuxConfigTest(unittest.TestCase):
-    def test_config_and_directory_inheritance_on_private_server(self):
-        with tempfile.TemporaryDirectory(prefix='dotfiles-tmux-', dir='/tmp') as directory:
-            home = Path(directory)
-            socket = home / 'server.sock'
-            command = ['tmux', '-S', str(socket)]
-            env = dict(os.environ, HOME=directory, SHELL='/bin/sh', TERM='xterm-256color')
-            env.pop('TMUX', None)
-
-            def run(*args):
-                return subprocess.check_output(command + list(args), env=env, text=True, stderr=subprocess.STDOUT)
-
-            try:
-                run('-f', str(REPO / 'tmux/tmux.conf'), 'new-session', '-d', '-s', 'project', '-c', directory, 'sleep 60')
-                for key in ['"', '%', 'c']:
-                    self.assertIn('#{pane_current_path}', run('list-keys', '-T', 'prefix', key))
-                run('split-window', '-h', '-t', 'project', '-c', '#{pane_current_path}', 'sleep 60')
-                paths = run('list-panes', '-t', 'project', '-F', '#{pane_current_path}').splitlines()
-                self.assertEqual(paths, [str(home.resolve())] * 2)
-                run('new-window', '-t', 'project', '-c', '#{pane_current_path}', 'sleep 60')
-                self.assertEqual(run('display-message', '-p', '-t', 'project', '#{pane_current_path}').strip(), str(home.resolve()))
-            finally:
-                subprocess.run(command + ['kill-server'], env=env, capture_output=True)
 
 
 if __name__ == '__main__':

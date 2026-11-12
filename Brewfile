@@ -1,5 +1,6 @@
 brew "git"
 brew "gh"
+brew "jq"
 brew "pnpm"
 brew "neovim"
 brew "tmux"

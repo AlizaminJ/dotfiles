@@ -23,7 +23,6 @@ class DoctorTest(unittest.TestCase):
         self.personal = self.home / "workspace/personal"
         self.work = self.home / "workspace/work"
         values = dict(
-            PUBLIC_GIT_NAME="", PUBLIC_GIT_EMAIL="",
             PERSONAL_NAME="Personal Example", PERSONAL_EMAIL="personal@example.com",
             PERSONAL_KEY_NAME="id_personal", PERSONAL_ROOT=str(self.personal),
             WORK_NAME="Work Example", WORK_EMAIL="work@example.com",
@@ -108,16 +107,15 @@ esac
         self.assertEqual(result.returncode, 1)
         self.assertIn("ignoreScripts must be true", result.stdout)
 
-    def test_approved_public_checkout_identity_is_not_reported_as_wrong(self):
+    def test_checkout_uses_personal_identity_without_a_separate_profile(self):
         config = self.checkout / 'config.local.sh'
         with config.open('a') as stream:
-            stream.write(f'\nPERSONAL_ROOT={shlex.quote(str(self.checkout))}\n'
-                         'PUBLIC_GIT_NAME=Example\nPUBLIC_GIT_EMAIL=123+Example@users.noreply.github.com\n')
+            stream.write(f'\nPERSONAL_ROOT={shlex.quote(str(self.checkout))}\n')
         self.run_command('git', 'init', str(self.checkout), check=True)
         self.run_command('bash', str(REPO / 'scripts/git-ssh.sh'), check=True)
         result = self.doctor(self.checkout)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn('Public dotfiles identity matches', result.stdout)
+        self.assertIn('Personal identity matches', result.stdout)
 
     def test_checks_selected_repository_identity(self):
         project = self.work / "project"
@@ -155,6 +153,17 @@ esac
         result = self.doctor()
         self.assertEqual(result.returncode, 1)
         self.assertIn('AGENTS.override.md hides', result.stdout)
+
+    def test_missing_managed_skill_files_are_reported_without_repair(self):
+        for relative, label in [('security-review/SKILL.md', 'Shared security-review skill'),
+                                ('essayist/references/writing-guide.md', 'Essayist writing guide')]:
+            with self.subTest(file=relative):
+                skill = self.home / '.agents/skills' / relative
+                skill.unlink()
+                result = self.doctor()
+                self.assertEqual(result.returncode, 1)
+                self.assertIn(label + ' missing', result.stdout)
+                self.assertFalse(skill.exists())
 
     def test_invalid_directory(self):
         result = self.doctor(self.home / "missing")

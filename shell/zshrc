@@ -7,7 +7,9 @@ HISTFILE=$HOME/.zsh_history
 HISTSIZE=50000
 SAVEHIST=50000
 
-# Keep machine-specific paths, helpers, and credentials outside the repository.
+source "$DOTFILES_SHELL_DIR/aliases.zsh"
+source "$DOTFILES_SHELL_DIR/functions.zsh"
+# Private settings can override shared shortcuts.
 [[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
 
 # GUI terminals on a fresh Mac may not inherit Homebrew's PATH.
@@ -35,13 +37,11 @@ compinit -i
 zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 
-source "$DOTFILES_SHELL_DIR/aliases.zsh"
-
 # Make manager commands available on demand, without running its loader on startup.
 antidote() {
   local manager=${ANTIDOTE_ZSH:-${HOMEBREW_PREFIX:-/usr/local}/opt/antidote/share/antidote/antidote.zsh}
   if [[ ! -r "$manager" ]]; then
-    print -u2 'Antidote is not installed; use the reviewed installation steps in docs/shell.md.'
+    print -u2 'Antidote is not installed; see docs/onboarding.md for reviewed setup.'
     return 1
   fi
   unfunction antidote
@@ -67,5 +67,5 @@ if [[ -r "$DOTFILES_PLUGIN_CACHE" && -r "$DOTFILES_PLUGIN_CACHE.manifest" ]] &&
   # Plugins load after completions and keyboard integrations; highlighting is last.
   source "$DOTFILES_PLUGIN_CACHE"
 else
-  print -u2 'Shell plugins not prepared or pins changed. Run: bash scripts/shell-plugins.sh from your dotfiles checkout.'
+  print -u2 'Shell plugins not prepared or pins changed. Run: dotfiles plugins'
 fi

@@ -17,6 +17,34 @@ for key in PERSONAL_NAME PERSONAL_EMAIL PERSONAL_KEY_NAME PERSONAL_ROOT WORK_NAM
   fi
 done
 
+for variable in PERSONAL_KEY_NAME WORK_KEY_NAME; do
+  value="${!variable}"
+  lower="$(printf '%s' "$value" | LC_ALL=C tr '[:upper:]' '[:lower:]')"
+  if [[ ! "$value" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ || "${#value}" -gt 200 ]]; then
+    echo "❌ SSH key names must be ordinary filenames, not paths." >&2
+    exit 1
+  fi
+  case "$lower" in
+    config|known_hosts|known_hosts.old|authorized_keys|environment|rc|*.pub)
+      echo "❌ SSH key names must not name public keys or SSH configuration files." >&2
+      exit 1
+      ;;
+  esac
+done
+if [[ "$(printf '%s' "$PERSONAL_KEY_NAME" | LC_ALL=C tr '[:upper:]' '[:lower:]')" == "$(printf '%s' "$WORK_KEY_NAME" | LC_ALL=C tr '[:upper:]' '[:lower:]')" ]]; then
+  echo "❌ Personal and work keys must use different filenames." >&2
+  exit 1
+fi
+
+PERSONAL_GITHUB_USER="${PERSONAL_GITHUB_USER:-}"
+WORK_GITHUB_USER="${WORK_GITHUB_USER:-}"
+REGISTER_GITHUB_KEYS="${REGISTER_GITHUB_KEYS:-true}"
+case "$REGISTER_GITHUB_KEYS" in
+  true|false) ;;
+  *) echo "❌ REGISTER_GITHUB_KEYS must be true or false." >&2; exit 1 ;;
+esac
+export PERSONAL_GITHUB_USER WORK_GITHUB_USER REGISTER_GITHUB_KEYS
+
 PERSONAL_ROOT="${PERSONAL_ROOT%/}"
 WORK_ROOT="${WORK_ROOT%/}"
 for root in "$PERSONAL_ROOT" "$WORK_ROOT"; do

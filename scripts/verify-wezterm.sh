@@ -9,7 +9,11 @@ if [[ "$#" -gt 1 || ! -d "$APP" || "$(uname -s)" != Darwin ]]; then
   exit 1
 fi
 
-# Pin the developer identity checked against the official stable release.
+# Reviewed 2026-11-09: stable 20240203-110809-5046fc22, released 2024-02-03.
+# Archive SHA256: e77388cad55f2e9da95a220a89206a6c58f865874a629b7c3ea3c162f5692224
+# Same checksum in Homebrew snapshot 6036456f4e329bd68fb5bed9f879df46e47892ba (2026-09-20).
+# This app passed macOS signature/notarization checks; newer releases need a new review.
+# Pin the developer identity checked against that official stable release.
 codesign --verify --deep --strict \
   --test-requirement='=anchor apple generic and certificate leaf[subject.OU] = "P4A6FU9KZ3"' \
   "$APP"

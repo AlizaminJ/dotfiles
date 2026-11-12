@@ -19,7 +19,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check out repository
-        # Reviewed upstream snapshot dated 2026-07-16; no npm install at runtime.
+        # Reviewed 2026-11-09: upstream snapshot 2026-07-16, bundled Node 24, no npm install.
+        # Runner images/tools are GitHub-managed, not immutable or retroactively age-audited.
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           persist-credentials: false

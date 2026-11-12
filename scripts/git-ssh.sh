@@ -6,20 +6,14 @@ REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 # shellcheck source=scripts/config.sh
 source "$REPO_ROOT/scripts/config.sh"
 
-if [[ -n "${PUBLIC_GIT_NAME:-}${PUBLIC_GIT_EMAIL:-}" ]]; then
-  if [[ ! "${PUBLIC_GIT_NAME:-}" =~ ^[A-Za-z0-9][A-Za-z0-9-]*$ ||
-        ! "${PUBLIC_GIT_EMAIL:-}" =~ ^([0-9]+\+)?[A-Za-z0-9-]+@users\.noreply\.github\.com$ ]]; then
-    echo "❌ Public Git identity requires a GitHub handle and users.noreply.github.com address." >&2
+# Existing links can redirect setup into unrelated files; check before any writes.
+for target in "$HOME/.gitconfig" "$HOME/.gitconfig-personal" "$HOME/.gitconfig-work" \
+              "$HOME/.gitignore_global" "$HOME/.ssh" "$HOME/.ssh/config"; do
+  if [[ -L "$target" ]]; then
+    printf '❌ Refusing symlinked Git/SSH path: %s. Review it manually before setup.\n' "$target" >&2
     exit 1
   fi
-  PUBLIC_ROOT="$(git -C "$REPO_ROOT" rev-parse --show-toplevel 2>/dev/null)" || {
-    echo "❌ Public Git identity requires a Git checkout at REPO_ROOT." >&2; exit 1;
-  }
-  if [[ "$(cd "$PUBLIC_ROOT" && pwd -P)" != "$(cd "$REPO_ROOT" && pwd -P)" ]]; then
-    echo "❌ Public Git identity must target the dotfiles checkout itself." >&2
-    exit 1
-  fi
-fi
+done
 
 # Writes $1 with content from stdin, backing up any existing differing file to $1.bak first.
 write_file() {
@@ -81,24 +75,6 @@ write_git_config "$HOME/.gitconfig" \
   "includeIf.gitdir:$WORK_ROOT/.path" "$HOME/.gitconfig-work" \
   core.excludesfile "$HOME/.gitignore_global"
 
-if [[ -n "${PUBLIC_GIT_NAME:-}" ]]; then
-  if [[ "$(git -C "$REPO_ROOT" config --local --get user.name || true)" != "$PUBLIC_GIT_NAME" ||
-        "$(git -C "$REPO_ROOT" config --local --get user.email || true)" != "$PUBLIC_GIT_EMAIL" ]]; then
-    CONFIG="$(git -C "$REPO_ROOT" rev-parse --path-format=absolute --git-path config)"
-    backup="$CONFIG.bak"
-    suffix=1
-    while [[ -e "$backup" || -L "$backup" ]]; do
-      backup="$CONFIG.bak.$suffix"
-      suffix=$((suffix + 1))
-    done
-    cp -p "$CONFIG" "$backup"
-    chmod 600 "$backup"
-    git -C "$REPO_ROOT" config --local --replace-all user.name "$PUBLIC_GIT_NAME"
-    git -C "$REPO_ROOT" config --local --replace-all user.email "$PUBLIC_GIT_EMAIL"
-    echo "  ↪ Public identity applied to this checkout only; repository Git config backed up."
-  fi
-fi
-
 echo "🙈 Creating global gitignore for macOS system files..."
 write_file ~/.gitignore_global << EOF
 .DS_Store
@@ -113,24 +89,28 @@ fi
 
 MARKER="# --- dotfiles:git-ssh multi-account setup ---"
 if grep -qF "$MARKER" ~/.ssh/config 2>/dev/null; then
-  echo "  ↪ SSH multi-account block already present, skipping append"
+  echo "  ↪ Existing SSH block kept; review it manually if account defaults or key names changed."
 else
   cat << EOF >> ~/.ssh/config
 
 $MARKER
-# Personal GitHub Profile (Default)
+# Work GitHub Profile (Default)
 Host github.com
-    HostName github.com
-    User git
-    IdentityFile ~/.ssh/$PERSONAL_KEY_NAME
-    IdentitiesOnly yes
-
-# Work GitHub Profile
-Host github.com-work
     HostName github.com
     User git
     IdentityFile ~/.ssh/$WORK_KEY_NAME
     IdentitiesOnly yes
+    AddKeysToAgent yes
+    UseKeychain yes
+
+# Personal GitHub Profile
+Host github.com-personal
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/$PERSONAL_KEY_NAME
+    IdentitiesOnly yes
+    AddKeysToAgent yes
+    UseKeychain yes
 EOF
 fi
 
@@ -139,7 +119,7 @@ chmod 600 ~/.ssh/config
 echo "✅ Git/SSH setup complete!"
 echo "--------------------------------------------------------"
 echo "Next Steps:"
-echo "1. Place your private SSH keys in ~/.ssh/ and make sure they match names: $PERSONAL_KEY_NAME and $WORK_KEY_NAME"
-echo "2. Set correct permissions on your keys: chmod 600 ~/.ssh/id_*"
-echo "3. Remember to clone work projects using: git clone git@github.com-work:org/repo.git"
+echo "1. Run dotfiles ssh-keys if key generation/GitHub registration was skipped."
+echo "2. First SSH use can remember passphrases in the macOS Keychain."
+echo "3. Work SSH clones use github.com; personal SSH clones use github.com-personal."
 echo "--------------------------------------------------------"

@@ -16,6 +16,7 @@ if [[ -z "${ANTIDOTE_ZSH:-}" ]]; then
 fi
 [[ -r "$ANTIDOTE_ZSH" ]] || { echo "❌ Antidote not found: $ANTIDOTE_ZSH" >&2; exit 1; }
 
+# Reviewed 2026-11-09; Antidote 2.3.0 was published 2026-08-07.
 # These dates were verified against upstream GitHub commits during code review.
 python3 - "$MANIFEST" << 'PY'
 import datetime, pathlib, sys

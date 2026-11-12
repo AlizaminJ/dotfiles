@@ -31,4 +31,4 @@ link_config "$REPO_ROOT/wezterm/wezterm.lua" "$HOME/.wezterm.lua"
 
 echo "✅ Configs linked. Existing .zprofile, .zshenv, and .zshrc.local were left alone."
 echo "  ↪ Move reviewed private aliases and environment setup from your .zshrc backup to ~/.zshrc.local."
-echo "  ↪ Read docs/shell.md before opening a new shell; the old framework is not sourced automatically."
+echo "  ↪ Read docs/usage.md before opening a new shell; the old framework is not sourced automatically."

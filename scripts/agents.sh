@@ -5,6 +5,12 @@ REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 SOURCE="$REPO_ROOT/agents/AGENTS.md"
 COPILOT_DIR="$HOME/Library/Application Support/Code/User/prompts"
 PI_DIR="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}"
+SKILL_FILES=(
+  code-review/SKILL.md
+  security-review/SKILL.md
+  essayist/SKILL.md
+  essayist/references/writing-guide.md
+)
 
 backup_file() {
   local target="$1"
@@ -51,6 +57,9 @@ link_file() {
 }
 
 [[ -f "$SOURCE" ]] || { printf 'Missing shared instructions: %s\n' "$SOURCE" >&2; exit 1; }
+for file in "${SKILL_FILES[@]}"; do
+  [[ -f "$REPO_ROOT/agents/skills/$file" ]] || { echo "❌ Missing managed skill file." >&2; exit 1; }
+done
 [[ "$PI_DIR" == /* ]] || { echo "❌ PI_CODING_AGENT_DIR must be an absolute path." >&2; exit 1; }
 if [[ -e "$PI_DIR/AGENTS.override.md" || -L "$PI_DIR/AGENTS.override.md" ]]; then
   echo "❌ Pi AGENTS.override.md would hide the shared instructions. Review it before running setup." >&2
@@ -61,6 +70,11 @@ echo "⚙️ Configuring shared agent instructions..."
 mkdir -p "$HOME/.agents" "$HOME/.claude" "$COPILOT_DIR" "$PI_DIR"
 link_file "$SOURCE" "$HOME/.agents/AGENTS.md"
 link_file "$HOME/.agents/AGENTS.md" "$PI_DIR/AGENTS.md"
+for file in "${SKILL_FILES[@]}"; do
+  target="$HOME/.agents/skills/$file"
+  mkdir -p "$(dirname "$target")"
+  link_file "$REPO_ROOT/agents/skills/$file" "$target"
+done
 
 write_file "$HOME/.claude/CLAUDE.md" << 'EOF'
 @~/.agents/AGENTS.md
@@ -73,7 +87,7 @@ applyTo: "**"
 ---
 
 Read and follow the [shared global instructions](<$HOME/.agents/AGENTS.md>) before working.
-Repository-specific instructions add to these rules and take precedence on conflict, subject to the tool's higher-priority instructions.
+Repository-specific conventions add context without weakening shared safety rules, subject to the tool's higher-priority instructions.
 EOF
 
-echo "✅ Shared agent instructions configured!"
+echo "✅ Shared agent instructions and skills configured!"

@@ -83,6 +83,11 @@ check_link() {
 check_link "$HOME/.config/nvim" "$REPO_ROOT/nvim" "Neovim config"
 check_link "$HOME/.tmux.conf" "$REPO_ROOT/tmux/tmux.conf" "tmux config"
 check_link "$HOME/.agents/AGENTS.md" "$REPO_ROOT/agents/AGENTS.md" "Shared agent instructions"
+for skill in code-review security-review essayist; do
+  check_link "$HOME/.agents/skills/$skill/SKILL.md" "$REPO_ROOT/agents/skills/$skill/SKILL.md" "Shared $skill skill"
+done
+check_link "$HOME/.agents/skills/essayist/references/writing-guide.md" \
+  "$REPO_ROOT/agents/skills/essayist/references/writing-guide.md" "Essayist writing guide"
 PI_DIR="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}"
 if [[ "$PI_DIR" != /* ]]; then
   fail "PI_CODING_AGENT_DIR must be an absolute path"
@@ -156,12 +161,6 @@ check_profiles() (
     if [[ -z "$repo" ]]; then
       warn "No repository found within two levels of $label workspace; identity not verified"
       return
-    fi
-    if [[ -n "${PUBLIC_GIT_NAME:-}" && -n "${PUBLIC_GIT_EMAIL:-}" ]] &&
-       [[ "$(git -C "$repo" rev-parse --show-toplevel 2>/dev/null || true)" == "$(cd "$REPO_ROOT" && pwd -P)" ]]; then
-      name="$PUBLIC_GIT_NAME"
-      email="$PUBLIC_GIT_EMAIL"
-      label="Public dotfiles"
     fi
     actual_name="$(git -C "$repo" config --get user.name 2>/dev/null || true)"
     actual_email="$(git -C "$repo" config --get user.email 2>/dev/null || true)"

@@ -33,7 +33,6 @@ class GitProfilesTest(unittest.TestCase):
 
     def write_config(self, **overrides):
         values = dict(
-            PUBLIC_GIT_NAME="", PUBLIC_GIT_EMAIL="",
             PERSONAL_NAME='Personal "Example" #1',
             PERSONAL_EMAIL="personal@example.com", PERSONAL_KEY_NAME="id_personal",
             PERSONAL_ROOT=str(self.personal), WORK_NAME="Work Example",
@@ -79,27 +78,36 @@ class GitProfilesTest(unittest.TestCase):
             self.run_command("git", "config", "user.email", "explicit@example.com", cwd=repo)
             self.run_command("git", "commit", "--allow-empty", "-m", "test", cwd=repo)
 
-    def test_public_identity_is_local_only_and_repeatable(self):
-        self.init_repo(self.checkout)
-        self.run_command('git', 'config', '--local', 'user.name', 'Previous Name', cwd=self.checkout)
-        self.run_command('git', 'config', '--local', 'user.email', 'previous@example.com', cwd=self.checkout)
-        old_config = (self.checkout / '.git/config').read_bytes()
-        self.write_config(PUBLIC_GIT_NAME='Example', PUBLIC_GIT_EMAIL='123+Example@users.noreply.github.com')
+    def test_work_is_default_ssh_account_and_personal_has_its_own_host(self):
         self.setup_git()
-        self.assertEqual(self.run_command('git', 'whoami', cwd=self.checkout).stdout.strip(),
-                         'Example <123+Example@users.noreply.github.com>')
-        self.assertEqual((self.checkout / '.git/config.bak').read_bytes(), old_config)
-        personal = self.init_repo(self.personal / 'other')
-        self.assertEqual(self.run_command('git', 'config', 'user.email', cwd=personal).stdout.strip(), 'personal@example.com')
-        self.setup_git()
-        self.assertFalse((self.checkout / '.git/config.bak.1').exists())
+        config = (self.home / '.ssh/config').read_text()
+        for host, key in [('github.com', 'id_work'), ('github.com-personal', 'id_personal')]:
+            block = config.split(f'Host {host}\n', 1)[1].split('\nHost ', 1)[0]
+            self.assertIn(f'IdentityFile ~/.ssh/{key}\n', block)
+            self.assertIn('IdentitiesOnly yes', block)
+            self.assertIn('AddKeysToAgent yes', block)
+            self.assertIn('UseKeychain yes', block)
+        self.assertNotIn('Host github.com-work', config)
 
-    def test_public_identity_rejects_contact_email_before_writing_configs(self):
-        self.write_config(PUBLIC_GIT_NAME='Example', PUBLIC_GIT_EMAIL='private@example.com')
-        result = self.setup_git(check=False)
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn('noreply', result.stderr)
-        self.assertFalse((self.home / '.gitconfig').exists())
+    def test_setup_leaves_existing_repo_identity_untouched(self):
+        self.init_repo(self.checkout)
+        self.run_command('git', 'config', '--local', 'user.name', 'Example', cwd=self.checkout)
+        self.run_command('git', 'config', '--local', 'user.email', '123+Example@users.noreply.github.com', cwd=self.checkout)
+        before = (self.checkout / '.git/config').read_bytes()
+        self.setup_git()
+        self.setup_git()
+        self.assertEqual((self.checkout / '.git/config').read_bytes(), before)
+        self.assertFalse((self.checkout / '.git/config.bak').exists())
+
+    def test_personal_noreply_email_does_not_change_work_identity(self):
+        self.write_config(PERSONAL_EMAIL='123+Example@users.noreply.github.com')
+        self.setup_git()
+        personal = self.init_repo(self.personal / 'project')
+        work = self.init_repo(self.work / 'project')
+        self.assertEqual(self.run_command('git', 'config', 'user.email', cwd=personal).stdout.strip(),
+                         '123+Example@users.noreply.github.com')
+        self.assertEqual(self.run_command('git', 'config', 'user.email', cwd=work).stdout.strip(),
+                         'work@example.com')
 
     def test_whoami_reports_effective_identity_and_requires_one(self):
         self.setup_git()
@@ -142,6 +150,44 @@ class GitProfilesTest(unittest.TestCase):
         self.assertFalse((self.home / ".gitconfig.bak.2").exists())
         self.assertEqual((self.home / ".ssh/config").read_text().count("# --- dotfiles:git-ssh"), 1)
 
+    def test_symlinked_targets_stop_before_any_setup_writes(self):
+        def snapshot(home):
+            result = {}
+            for path in [home, *home.rglob('*')]:
+                info = path.lstat()
+                data = os.readlink(path) if path.is_symlink() else path.read_bytes() if path.is_file() else None
+                result[str(path.relative_to(home))] = (info.st_mode, info.st_mtime_ns, data)
+            return result
+
+        targets = ['.gitconfig', '.gitconfig-personal', '.gitconfig-work',
+                   '.gitignore_global', '.ssh', '.ssh/config']
+        for relative in targets:
+            for dangling in [False, True]:
+                with self.subTest(target=relative, dangling=dangling), tempfile.TemporaryDirectory(dir=self.home) as directory:
+                    home = Path(directory)
+                    victim = home / 'unrelated-target'
+                    if not dangling:
+                        if relative == '.ssh':
+                            victim.mkdir(mode=0o755)
+                            (victim / 'config').write_text('# existing SSH settings\n')
+                        else:
+                            victim.write_text('[user]\n  name = Fixture\n')
+                    target = home / relative
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.symlink_to(victim, target_is_directory=relative == '.ssh')
+                    before = snapshot(home)
+                    result = subprocess.run(
+                        ['/bin/bash', str(REPO / 'scripts/git-ssh.sh')], cwd=home,
+                        env={'HOME': str(home), 'REPO_ROOT': str(self.checkout),
+                             'PATH': os.defpath, 'GIT_CONFIG_NOSYSTEM': '1', 'TMPDIR': str(home)},
+                        capture_output=True, text=True,
+                    )
+                    self.assertNotEqual(result.returncode, 0, result.stderr)
+                    self.assertIn('symlink', result.stderr.lower())
+                    self.assertEqual(snapshot(home), before)
+                    self.assertFalse(self.personal.exists())
+                    self.assertFalse(self.work.exists())
+
     def test_missing_or_incomplete_config_stops_before_changes(self):
         config = self.checkout / "config.local.sh"
         config.unlink()
@@ -157,6 +203,15 @@ class GitProfilesTest(unittest.TestCase):
                 self.write_config(WORK_ROOT=root)
                 self.assertNotEqual(self.setup_git(check=False).returncode, 0)
                 self.assertFalse((self.home / ".gitconfig").exists())
+
+    def test_unsafe_or_colliding_key_filenames_stop_before_writes(self):
+        for name in ['../outside', 'config', 'KNOWN_HOSTS', 'id_key.pub', 'id_personal', 'ID_PERSONAL']:
+            with self.subTest(name=name):
+                self.write_config(WORK_KEY_NAME=name)
+                result = self.setup_git(check=False)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse((self.home / '.gitconfig').exists())
+                self.assertFalse((self.home / '.ssh').exists())
 
     def test_trailing_slashes_are_supported(self):
         self.write_config(PERSONAL_ROOT=str(self.personal) + "/", WORK_ROOT=str(self.work) + "/")

@@ -1,41 +1,13 @@
-# Neovim — macOS
+# Neovim
 
-Lua configuration based on [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim).
-Upstream license is retained in `LICENSE.md`. Requires Neovim with `vim.pack`.
+Kickstart-based config; upstream `LICENSE.md` retained. Requires `vim.pack`.
+Fresh Macs start with core settings, not automatic plugin installation.
 
-## First launch and dependency safety
+[`lua/dotfiles/safety.lua`](lua/dotfiles/safety.lua) guards existing/listed plugins.
+Existing plugin trees are trusted; startup doesn't verify their Git HEAD or local changes.
+Before preparing plugins, review source, immutable revisions, ≥7-day age, dependencies,
+and builds. The retained lockfile isn't newly audited. No automatic builds,
+Mason installs, or parser downloads; manual installs/updates still need review.
 
-A fresh Mac gets core editor settings only until the lockfile's plugins are
-reviewed and present under Neovim's data directory. No automatic clone, build,
-Mason tool install, or Treesitter parser install runs during startup.
-
-`lua/dotfiles/safety.lua` checks the retained lockfile/cache and blocks missing or
-unlisted additions. It does not re-audit cached revisions or verify every installed
-HEAD against the lock on startup. Before preparing any plugin/tool, verify immutable revisions, release age
-(at least 7 days), dependencies, and executable code. Do not use floating install
-commands to bypass this. Parser/native-plugin builds need separate approval.
-Existing plugin code can execute when loaded; this guard is not a sandbox.
-
-`nvim-pack-lock.json` is retained, not regenerated or newly audited by setup.
-Keep its updates deliberate and review diffs. Manual `vim.pack`/Mason/update
-commands remain subject to the same policy. On a fresh Mac, `nvim` stays usable
-without those extras; `:checkhealth` can help diagnose an existing installation.
-
-## Configured features once reviewed plugins are available
-
-| Feature | Choice |
-| --- | --- |
-| Leader | Space; Nerd Font enabled |
-| UI | Tokyonight, which-key, TODO markers, mini modules |
-| Git | Gitsigns; hunk actions under Space+h |
-| Search | Telescope using ripgrep/fd |
-| File tree | Neo-tree; `\` reveals current file |
-| Completion | blink.cmp Lua matcher and LuaSnip; no Rust binary download |
-| Language tools | Lua language server; StyLua formatter, not an LSP |
-| Formatting | Space+f; Lua uses externally reviewed StyLua; format-on-save off |
-| Syntax | Existing Treesitter parsers only; no build/update hooks |
-
-Useful keys: Space+sf files, Space+sg text search, Space+sh help,
-Space+Space buffers, Space+f format. Language servers/formatters must be installed
-separately through reviewed sources. Optional debug/lint examples are disabled
-unless explicitly enabled; they are not permission to install unreviewed tools.
+Use `:checkhealth` to inspect an installation. Plugin keybindings live in the Lua
+configuration and only work after the corresponding reviewed plugins are available.
