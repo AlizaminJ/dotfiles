@@ -134,7 +134,8 @@ fi
 
 # A subshell lets invalid local configuration fail without hiding other checks.
 check_profiles() (
-  local ISSUES=0
+  local profile_issues=0
+  fail() { printf '❌ %s\n' "$1"; profile_issues=1; }
   # shellcheck source=scripts/config.sh
   source "$REPO_ROOT/scripts/config.sh"
   pass "Local settings complete and workspace paths valid"
@@ -195,7 +196,7 @@ check_profiles() (
     fi
   done
   warn "SSH checks only cover key-file presence, not GitHub authentication"
-  exit "$ISSUES"
+  exit "$profile_issues"
 )
 if ! check_profiles; then
   fail "Local settings or Git/SSH checks need attention"
