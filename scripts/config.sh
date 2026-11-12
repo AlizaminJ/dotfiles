@@ -49,7 +49,7 @@ PERSONAL_ROOT="${PERSONAL_ROOT%/}"
 WORK_ROOT="${WORK_ROOT%/}"
 for root in "$PERSONAL_ROOT" "$WORK_ROOT"; do
   if [[ "$root" != /* || "$root" == / || -z "$root" || "$root" == *$'\n'* || "$root" == *$'\r'* ||
-        "$root" == *'*'* || "$root" == *'?'* || "$root" == *'['* || "$root" == *']'* || "$root" == *'\'* ]]; then
+        "$root" == *'*'* || "$root" == *'?'* || "$root" == *'['* || "$root" == *']'* || "$root" == *\\* ]]; then
     echo "❌ Workspace roots must be absolute, non-root paths without Git pattern characters." >&2
     exit 1
   fi

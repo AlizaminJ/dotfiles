@@ -46,14 +46,14 @@ if command -v pnpm >/dev/null 2>&1; then
   fi
 
   echo "  ↪ Checking effective pnpm settings in $TARGET"
-  age="$(cd "$TARGET" && pnpm config get minimumReleaseAge 2>/dev/null || true)"
+  age="$(cd "$TARGET" && pnpm config get minimumReleaseAge 2>/dev/null)" || age=""
   if [[ "$age" =~ ^[0-9]+$ ]] && [[ "$age" -ge 10080 ]]; then
     pass "Minimum package release age is at least 7 days"
   else
     fail "Minimum package release age is below 7 days or not configured"
   fi
   while read -r key expected; do
-    actual="$(cd "$TARGET" && pnpm config get "$key" 2>/dev/null || true)"
+    actual="$(cd "$TARGET" && pnpm config get "$key" 2>/dev/null)" || actual=""
     if [[ "$actual" == "$expected" ]]; then
       pass "pnpm $key=$expected"
     else
@@ -65,7 +65,7 @@ minimumReleaseAgeIgnoreMissingTime false
 trustLockfile false
 ignoreScripts true
 EOF
-  exclusions="$(cd "$TARGET" && pnpm config get minimumReleaseAgeExclude 2>/dev/null || true)"
+  exclusions="$(cd "$TARGET" && pnpm config get minimumReleaseAgeExclude 2>/dev/null)" || exclusions=""
   case "$exclusions" in
     undefined|null|'[]') pass "No pnpm release-age exclusions" ;;
     *) fail "pnpm release-age exclusions exist or could not be checked" ;;
@@ -134,7 +134,7 @@ fi
 
 # A subshell lets invalid local configuration fail without hiding other checks.
 check_profiles() (
-  ISSUES=0
+  local ISSUES=0
   # shellcheck source=scripts/config.sh
   source "$REPO_ROOT/scripts/config.sh"
   pass "Local settings complete and workspace paths valid"

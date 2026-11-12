@@ -45,6 +45,7 @@ case "$3" in
   minimumReleaseAgeExclude) echo undefined ;;
   *) exit 1 ;;
 esac
+if [ -f "$PWD/failing-pnpm" ]; then exit 1; fi
 ''')
         self.env = {
             key: value for key, value in os.environ.items()
@@ -106,6 +107,16 @@ esac
         result = self.doctor(project)
         self.assertEqual(result.returncode, 1)
         self.assertIn("ignoreScripts must be true", result.stdout)
+
+    def test_failed_pnpm_reads_do_not_trust_partial_output(self):
+        project = self.work / 'project'
+        project.mkdir()
+        (project / 'failing-pnpm').touch()
+        result = self.doctor(project)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn('Minimum package release age is below 7 days or not configured', result.stdout)
+        self.assertIn('pnpm minimumReleaseAgeStrict must be true', result.stdout)
+        self.assertIn('release-age exclusions exist or could not be checked', result.stdout)
 
     def test_checkout_uses_personal_identity_without_a_separate_profile(self):
         config = self.checkout / 'config.local.sh'

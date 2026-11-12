@@ -198,7 +198,7 @@ class GitProfilesTest(unittest.TestCase):
         self.assertFalse(self.personal.exists())
 
     def test_rejects_ambiguous_roots(self):
-        for root in [str(self.personal), str(self.personal / "nested"), "relative", "/", "/tmp/../work", "/tmp/work*", "/tmp/work[1]"]:
+        for root in [str(self.personal), str(self.personal / "nested"), "relative", "/", "/tmp/../work", "/tmp/work*", "/tmp/work[1]", r"/tmp/work\root"]:
             with self.subTest(root=root):
                 self.write_config(WORK_ROOT=root)
                 self.assertNotEqual(self.setup_git(check=False).returncode, 0)

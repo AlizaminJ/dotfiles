@@ -67,6 +67,8 @@ write_git_config "$HOME/.gitconfig-work" \
   user.name "$WORK_NAME" user.email "$WORK_EMAIL"
 
 echo "⚙️ Requiring an explicit Git identity outside managed workspaces..."
+# Git expands this alias when invoked, not during setup.
+# shellcheck disable=SC2016
 write_git_config "$HOME/.gitconfig" \
   user.useConfigOnly true \
   init.defaultBranch main \
