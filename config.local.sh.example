@@ -1,7 +1,7 @@
 # Copy to config.local.sh and fill in your details before running bootstrap.
 # Keep passwords, tokens, and private keys out of this file.
 
-PERSONAL_NAME=""
+PERSONAL_NAME="" # Author name shown on commits.
 PERSONAL_EMAIL="" # Use your GitHub noreply email to keep your private email out of commits.
 PERSONAL_KEY_NAME="id_personal"
 PERSONAL_ROOT="$HOME/workspace/personal"
