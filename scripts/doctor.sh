@@ -103,7 +103,7 @@ check_link "${XDG_CONFIG_HOME:-$HOME/.config}/uv/uv.toml" "$REPO_ROOT/uv/uv.toml
 PLUGIN_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/plugins.zsh"
 if [[ -r "$PLUGIN_CACHE" && -r "$PLUGIN_CACHE.manifest" ]] &&
    [[ "$(cksum < "$REPO_ROOT/shell/plugins.txt")" == "$(< "$PLUGIN_CACHE.manifest")" ]]; then
-  pass "Shell plugin cache matches the reviewed manifest"
+  pass "Shell plugin cache matches the manifest"
 else
   fail "Shell plugin cache missing or stale; run scripts/shell-plugins.sh"
 fi
@@ -112,14 +112,6 @@ if command -v wezterm >/dev/null 2>&1; then
 else
   fail "WezTerm missing"
 fi
-if [[ "$(uname -s)" == Darwin ]]; then
-  if bash "$REPO_ROOT/scripts/verify-wezterm.sh" >/dev/null 2>&1; then
-    pass "WezTerm developer signature and notarization verified"
-  else
-    fail "WezTerm signature/notarization check failed; run scripts/verify-wezterm.sh for details"
-  fi
-fi
-
 if [[ -f "$HOME/.claude/CLAUDE.md" ]] && grep -qFx '@~/.agents/AGENTS.md' "$HOME/.claude/CLAUDE.md"; then
   pass "Claude references shared instructions"
 else

@@ -1,6 +1,6 @@
 # macOS dotfiles
 
-Personal/work setup for Apple Silicon and Intel Macs.
+Personal/work setup for Apple Macs.
 WezTerm renders, tmux manages sessions, zsh runs commands, and Neovim edits files.
 
 - [Start here](docs/onboarding.md): configure and set up a Mac.

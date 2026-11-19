@@ -19,14 +19,13 @@ usage() {
     '  agents                 Link shared instructions and managed skills' \
     '  editors                Link Neovim and tmux configuration' \
     '  shell                  Link zsh, Starship, and WezTerm configuration only' \
-    '  plugins                Fetch reviewed pinned shell plugins with Antidote' \
+    '  plugins                Prepare shell plugins with Antidote' \
     '  pnpm                   Apply global pnpm safeguards' \
     '  uv                     Link uv safeguards without installing uv' \
     '  ssh-keys               Create/reuse keys; print public-key clipboard commands' \
     '  git-ssh                Apply workspace Git identities and SSH configuration' \
     '  macos                  Apply macOS preferences and restart Finder/Dock' \
-    '  homebrew               Age-check/install missing Brewfile packages; no upgrades' \
-    '  verify-wezterm [app]   Check macOS signing and notarization' \
+    '  homebrew               Install/update Brewfile packages with Homebrew' \
     '  secrets                Scan public files, index, and available Git history' \
     '  test                   Run repository tests' \
     '  setup                  Run the full bootstrap (installs/applies configuration)' \
@@ -52,7 +51,7 @@ case "$COMMAND" in
     usage
     exit 0
     ;;
-  doctor|verify-wezterm)
+  doctor)
     RUN=(bash "$REPO_ROOT/scripts/$COMMAND.sh")
     MAX_ARGS=1
     ;;

@@ -21,7 +21,7 @@ for prefix in /opt/homebrew /usr/local; do
     break
   fi
 done
-path=("$DOTFILES_SHELL_DIR/../bin" $path)
+path=("$DOTFILES_SHELL_DIR/../bin" "$HOME/.local/bin" $path)
 typeset -U path fpath
 export PATH
 export EDITOR=${EDITOR:-nvim}
@@ -41,7 +41,7 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 antidote() {
   local manager=${ANTIDOTE_ZSH:-${HOMEBREW_PREFIX:-/usr/local}/opt/antidote/share/antidote/antidote.zsh}
   if [[ ! -r "$manager" ]]; then
-    print -u2 'Antidote is not installed; see docs/onboarding.md for reviewed setup.'
+    print -u2 'Antidote is not installed; see docs/onboarding.md.'
     return 1
   fi
   unfunction antidote
@@ -67,5 +67,5 @@ if [[ -r "$DOTFILES_PLUGIN_CACHE" && -r "$DOTFILES_PLUGIN_CACHE.manifest" ]] &&
   # Plugins load after completions and keyboard integrations; highlighting is last.
   source "$DOTFILES_PLUGIN_CACHE"
 else
-  print -u2 'Shell plugins not prepared or pins changed. Run: dotfiles plugins'
+  print -u2 'Shell plugins not prepared or manifest changed. Run: dotfiles plugins'
 fi

@@ -16,14 +16,11 @@ Entry point: `bash bootstrap.sh`.
   Holds personal/work names, emails, SSH key filenames, and workspace roots.
 - `scripts/config.sh` — loads, validates, and exports local settings. Shared by
   bootstrap and standalone Git/SSH setup; missing identity values stop setup.
-- `scripts/homebrew.sh` — requires reviewed Homebrew/Python installations and
-  invokes `scripts/brew-packages.py` to age-check new packages and runtime
-  dependencies. No floating installer, upgrades, source builds, or automatic cleanup.
+- `scripts/prerequisites.sh` — installs Homebrew, uv, and Python.
+- `scripts/homebrew.sh` — installs/updates Brewfile packages with `brew bundle`.
 - `scripts/shell.sh` — backs up and links zsh, Starship, and WezTerm configs.
-- `scripts/verify-wezterm.sh` — requires the reviewed macOS Developer ID signature
-  and Gatekeeper notarization acceptance. No security bypass or app launch.
-- `scripts/shell-plugins.sh` — prepares reviewed immutable plugin pins through
-  Antidote. Startup must not download plugins or run an automatic updater.
+- `scripts/shell-plugins.sh` — prepares shell plugins through Antidote.
+  Startup must not download plugins or run an automatic updater.
 - `shell/`, `wezterm/` — macOS settings; generic helpers require explicit targets.
   Keep private aliases, profiles, locations, and project paths out of Git.
   WezTerm handles rendering only; leave pane/session shortcuts to tmux.
@@ -79,8 +76,7 @@ Entry point: `bash bootstrap.sh`.
     `scripts/git-ssh.sh`.
   - When appending to a file (e.g. `~/.ssh/config`), guard with a marker
     comment and skip if already present — don't append duplicate blocks.
-  - `defaults write` is naturally idempotent. The Homebrew checker skips existing
-    installations and must keep new package installation age-checked.
+  - `defaults write` is naturally idempotent.
 - Keep the existing progress-echo style: short emoji-prefixed status lines
   (`🚀`, `⚙️`, `🔒`, `✅`, etc.), with `↪` for sub-steps/details.
 - Do not commit secrets (SSH keys, tokens). `PERSONAL_EMAIL`/`WORK_EMAIL` etc.

@@ -9,16 +9,18 @@ source "$REPO_ROOT/scripts/config.sh"
 echo "🚀 Starting automated Mac setup..."
 
 echo ""
+echo "=== Prerequisites ==="
+bash "$REPO_ROOT/scripts/prerequisites.sh"
+# Keep tools installed by the child script available to subsequent steps.
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/local/sbin:$PATH"
+
+echo ""
 echo "=== Shared agent instructions ==="
 bash "$REPO_ROOT/scripts/agents.sh"
 
 echo ""
 echo "=== Homebrew & packages ==="
 "$REPO_ROOT/scripts/homebrew.sh"
-
-echo ""
-echo "=== WezTerm signature & Gatekeeper ==="
-bash "$REPO_ROOT/scripts/verify-wezterm.sh"
 
 echo ""
 echo "=== pnpm supply-chain defaults ==="

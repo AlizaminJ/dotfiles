@@ -74,48 +74,27 @@ class ShellTest(unittest.TestCase):
         result = subprocess.run(["zsh", "-d", "-i", "-c", "true"], env=self.env, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertFalse((self.home / "should-not-exist").exists())
-        self.assertIn("pins changed", result.stderr)
+        self.assertIn("manifest changed", result.stderr)
 
     @unittest.skipUnless(shutil.which("zsh"), "zsh unavailable")
-    def test_plugin_preparation_is_repeatable_and_rejects_dirty_trees(self):
+    def test_plugin_preparation_is_repeatable_without_age_or_version_gates(self):
         manager = self.home / "antidote.zsh"
         manager.write_text('''antidote() {
   case "$1" in
-    --version) print 'antidote version 2.3.0' ;;
-    bundle) cat >/dev/null; print '# prepared test plugins' ;;
-    path) print -r -- "$HOME/plugins/$2" ;;
+    bundle) cat > "$HOME/bundled-plugins"; print '# prepared test plugins' ;;
     *) return 1 ;;
   esac
 }
 ''')
-        bin_dir = self.home / "bin"
-        bin_dir.mkdir()
-        git = bin_dir / "git"
-        git.write_text('''#!/bin/bash
-case "$*" in
-  *'rev-parse HEAD')
-    case "$2" in
-      */zsh-autosuggestions) echo 85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5 ;;
-      */zsh-syntax-highlighting) echo e6683f20e5c38d3e5447f45845d04ddda75d0f23 ;;
-      *) exit 1 ;;
-    esac ;;
-  *'status --porcelain') if [[ -f "$HOME/dirty-plugin" ]]; then echo modified; fi ;;
-  *) exit 1 ;;
-esac
-''')
-        git.chmod(0o755)
-        env = dict(self.env, ANTIDOTE_ZSH=str(manager), PATH=str(bin_dir) + os.pathsep + self.env["PATH"])
+        env = dict(self.env, ANTIDOTE_ZSH=str(manager))
         command = ["bash", str(REPO / "scripts/shell-plugins.sh")]
         subprocess.run(command, env=env, check=True, capture_output=True)
         cache = self.home / ".cache/dotfiles/plugins.zsh"
         before = cache.read_bytes(), cache.stat().st_mtime_ns
         subprocess.run(command, env=env, check=True, capture_output=True)
         self.assertEqual(before, (cache.read_bytes(), cache.stat().st_mtime_ns))
-        (self.home / "dirty-plugin").touch()
-        result = subprocess.run(command, env=env, capture_output=True, text=True)
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("local modifications", result.stderr)
-        self.assertEqual(before, (cache.read_bytes(), cache.stat().st_mtime_ns))
+        self.assertEqual((self.home / 'bundled-plugins').read_text(), (REPO / 'shell/plugins.txt').read_text())
+        self.assertNotIn('pin:', (self.home / 'bundled-plugins').read_text())
 
     def test_uv_links_and_preserves_previous_preferences(self):
         target = self.home / ".config/uv/uv.toml"

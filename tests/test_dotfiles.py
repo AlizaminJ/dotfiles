@@ -36,7 +36,7 @@ exit "${STUB_EXIT:-0}"
             'agents': 'agents', 'editors': 'editors', 'shell': 'shell',
             'plugins': 'shell-plugins', 'pnpm': 'pnpm', 'uv': 'uv',
             'git-ssh': 'git-ssh', 'ssh-keys': 'ssh-keys', 'macos': 'macos-defaults', 'homebrew': 'homebrew',
-            'doctor': 'doctor', 'verify-wezterm': 'verify-wezterm',
+            'doctor': 'doctor',
         }
         for script in self.scripts.values():
             (self.repo / 'scripts' / (script + '.sh')).write_text(self.stub)
@@ -71,10 +71,9 @@ exit "${STUB_EXIT:-0}"
         self.assertEqual(self.run_wrapper('setup').returncode, 0)
         self.assertEqual(self.invocation()[0], str(self.repo.resolve() / 'bootstrap.sh'))
 
-    def test_doctor_and_app_paths_preserve_spaces_and_relative_context(self):
-        for command in ['doctor', 'verify-wezterm']:
-            self.assertEqual(self.run_wrapper(command, 'a relative path with spaces').returncode, 0)
-            self.assertEqual(self.invocation()[2:], [str(self.caller.resolve()), 'a relative path with spaces'])
+    def test_doctor_paths_preserve_spaces_and_relative_context(self):
+        self.assertEqual(self.run_wrapper('doctor', 'a relative path with spaces').returncode, 0)
+        self.assertEqual(self.invocation()[2:], [str(self.caller.resolve()), 'a relative path with spaces'])
 
     def test_secret_scan_targets_checkout_without_changing_caller_directory(self):
         result = self.run_wrapper('secrets')
