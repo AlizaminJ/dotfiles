@@ -2,6 +2,7 @@
 alias m0='arch -x86_64 /bin/zsh'
 alias m1='arch -arm64 /bin/zsh'
 alias gs='git status'
+alias gd='git diff'
 alias ga='git add'
 alias gcm='git commit -m'
 alias gp='git push'

@@ -7,6 +7,7 @@ cp -n config.local.sh.example config.local.sh
 chmod 600 config.local.sh
 # Fill in personal/work names and emails.
 bash bootstrap.sh
+source ~/.zshrc
 ```
 
 Setup installs Homebrew, uv, Python, and Brewfile packages. Approve prompts as needed.
