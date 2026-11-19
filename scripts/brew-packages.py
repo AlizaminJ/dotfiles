@@ -68,7 +68,7 @@ def recipe_age(record, kind, now):
     expected = record["ruby_source_checksum"]["sha256"]
     if hashlib.sha256(source).hexdigest() != expected:
         raise ValueError("Current Homebrew recipe does not match the age-checked immutable source")
-    if kind == "cask" and re.search(rb"^\s*(?:preflight|postflight|installer|pkg)\b", source, re.MULTILINE):
+    if kind == "cask" and re.search(rb"^\s*(?:preflight(?:_steps)?|postflight(?:_steps)?|installer|pkg)\b", source, re.MULTILINE):
         raise ValueError("Cask installer packages or hooks require explicit approval")
     return commit["sha"], date.isoformat()
 

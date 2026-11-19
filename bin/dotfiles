@@ -22,7 +22,7 @@ usage() {
     '  plugins                Fetch reviewed pinned shell plugins with Antidote' \
     '  pnpm                   Apply global pnpm safeguards' \
     '  uv                     Link uv safeguards without installing uv' \
-    '  ssh-keys               Create/reuse keys; confirm GitHub login and registration' \
+    '  ssh-keys               Create/reuse keys; print public-key clipboard commands' \
     '  git-ssh                Apply workspace Git identities and SSH configuration' \
     '  macos                  Apply macOS preferences and restart Finder/Dock' \
     '  homebrew               Age-check/install missing Brewfile packages; no upgrades' \

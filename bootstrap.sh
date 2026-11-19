@@ -42,7 +42,7 @@ echo "=== macOS defaults ==="
 "$REPO_ROOT/scripts/macos-defaults.sh"
 
 echo ""
-echo "=== SSH keys & GitHub registration ==="
+echo "=== SSH keys & manual GitHub registration ==="
 bash "$REPO_ROOT/scripts/ssh-keys.sh"
 
 echo ""

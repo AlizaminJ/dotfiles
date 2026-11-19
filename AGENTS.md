@@ -34,9 +34,9 @@ Entry point: `bash bootstrap.sh`.
 - `scripts/doctor.sh` — read-only health check, run manually with an optional
   project directory. Reports issues without installing or repairing anything.
 - `scripts/ssh-keys.sh` / `scripts/ssh-keys.py` — interactive missing-key generation
-  and account-verified/confirmed GitHub registration. Never overwrite existing keys,
-  create empty passphrases automatically, print key/token contents, or guess accounts.
-  Tests must use fake keygen/API clients, never real keys or account calls.
+  and printed public-key clipboard commands for manual GitHub registration.
+  Never overwrite existing keys, create empty passphrases automatically, print key
+  contents, or contact accounts/change the clipboard. Tests use fake keygen only.
 - `scripts/git-ssh.sh` — writes `~/.gitconfig`, `~/.gitconfig-personal`,
   `~/.gitconfig-work`, and `~/.gitignore_global`, and appends the SSH account block.
   Git identities apply only inside `PERSONAL_ROOT` and `WORK_ROOT`; outside those

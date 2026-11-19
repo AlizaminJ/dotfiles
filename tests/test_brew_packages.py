@@ -68,6 +68,16 @@ class BrewAgeTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Original recipe bytes"):
                 brew_packages.recipe_age(record(), "formula", NOW)
 
+    def test_cask_install_hooks_and_declarative_steps_require_review(self):
+        history = [{'sha': 'abc', 'commit': {'committer': {'date': '2026-10-01T00:00:00Z'}}}]
+        for keyword in ['preflight', 'postflight', 'preflight_steps', 'postflight_steps', 'installer', 'pkg']:
+            source = f'cask "example" do\n  {keyword} do\n  end\nend\n'.encode()
+            recipe = record(tap='homebrew/cask', ruby_source_path='Casks/e/example.rb',
+                            ruby_source_checksum={'sha256': hashlib.sha256(source).hexdigest()})
+            with self.subTest(keyword=keyword), patch.object(brew_packages, 'github', side_effect=[history, contents(source)]):
+                with self.assertRaisesRegex(ValueError, 'hooks require explicit approval'):
+                    brew_packages.recipe_age(recipe, 'cask', NOW)
+
     def test_checks_transitive_dependencies_and_orders_them_first(self):
         with tempfile.TemporaryDirectory() as directory:
             brewfile = Path(directory) / "Brewfile"

@@ -121,7 +121,7 @@ chmod 600 ~/.ssh/config
 echo "✅ Git/SSH setup complete!"
 echo "--------------------------------------------------------"
 echo "Next Steps:"
-echo "1. Run dotfiles ssh-keys if key generation/GitHub registration was skipped."
+echo "1. Run dotfiles ssh-keys for public-key copy commands; add keys to GitHub manually."
 echo "2. First SSH use can remember passphrases in the macOS Keychain."
 echo "3. Work SSH clones use github.com; personal SSH clones use github.com-personal."
 echo "--------------------------------------------------------"

@@ -11,7 +11,16 @@ brew "antidote"
 brew "starship"
 brew "zoxide"
 brew "fzf"
+brew "bitwarden-cli"
 
 cask "wezterm"
 cask "visual-studio-code"
 cask "font-jetbrains-mono-nerd-font"
+cask "brave-browser"
+cask "bitwarden"
+cask "todoist-app"
+cask "obsidian"
+cask "flux-app"
+
+# Docker Desktop's post-install system link needs explicit review/approval first.
+# cask "docker-desktop"

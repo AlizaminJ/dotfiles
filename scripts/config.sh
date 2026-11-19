@@ -36,15 +36,6 @@ if [[ "$(printf '%s' "$PERSONAL_KEY_NAME" | LC_ALL=C tr '[:upper:]' '[:lower:]')
   exit 1
 fi
 
-PERSONAL_GITHUB_USER="${PERSONAL_GITHUB_USER:-}"
-WORK_GITHUB_USER="${WORK_GITHUB_USER:-}"
-REGISTER_GITHUB_KEYS="${REGISTER_GITHUB_KEYS:-true}"
-case "$REGISTER_GITHUB_KEYS" in
-  true|false) ;;
-  *) echo "❌ REGISTER_GITHUB_KEYS must be true or false." >&2; exit 1 ;;
-esac
-export PERSONAL_GITHUB_USER WORK_GITHUB_USER REGISTER_GITHUB_KEYS
-
 PERSONAL_ROOT="${PERSONAL_ROOT%/}"
 WORK_ROOT="${WORK_ROOT%/}"
 for root in "$PERSONAL_ROOT" "$WORK_ROOT"; do

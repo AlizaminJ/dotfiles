@@ -9,8 +9,9 @@
 - Personal repos go under `~/workspace/personal`, work under `~/workspace/work`.
   Check `git whoami`. SSH clones use `git@github.com:ORG/repo.git` for work and
   `git@github.com-personal:USER/repo.git` for personal.
-- `dotfiles ssh-keys` finishes key setup. New SSH profiles remember passphrases in
-  macOS Keychain; existing marked SSH blocks aren't rewritten.
+- `dotfiles ssh-keys` prepares keys and prints `pbcopy` commands; add each public key
+  to the matching GitHub account yourself. New SSH profiles use macOS Keychain;
+  existing marked SSH blocks aren't rewritten.
 - Put private overrides in `~/.zshrc.local`. `sz` starts a fresh shell; `cz` edits that file.
 - `dotfiles agents` links shared rules plus `code-review`, `security-review`, and
   `essayist`; Pi's `/reload` refreshes them. Other skills stay untouched.
