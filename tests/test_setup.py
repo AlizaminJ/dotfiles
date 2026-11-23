@@ -100,7 +100,7 @@ fi
         with (self.tools / 'uv-template').open('a') as stream:
             stream.write('mkdir -p "$HOME/.local/bin"\n'
                          'cp "$TEST_TOOLS/python-template" "$HOME/.local/bin/python3"\n')
-        steps = ['agents', 'homebrew', 'pnpm', 'uv', 'editors', 'shell-plugins',
+        steps = ['agents', 'homebrew', 'pnpm', 'uv', 'editors', 'nvim-plugins', 'shell-plugins',
                  'shell', 'macos-defaults', 'ssh-keys', 'git-ssh']
         for step in steps:
             path = scripts / (step + '.sh')

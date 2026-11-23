@@ -21,7 +21,8 @@
 - `dotfiles agents` links shared rules plus `code-review`, `security-review`, and
   `essayist`; Pi's `/reload` refreshes them. Other skills stay untouched.
 - Use `dotfiles help` for tasks, `dotfiles doctor` for read-only checks, and
-  `dotfiles plugins` if the shell reports missing/stale plugins.
+  `dotfiles plugins` if the shell reports missing/stale plugins. `dotfiles nvim-plugins`
+  installs the Neovim plugins pinned in `nvim/nvim-pack-lock.json`.
 - Before publishing: `dotfiles test`, `dotfiles secrets`, and `git diff --check`.
   Review staged changes/history too; a scanner cannot find every secret.
 

@@ -33,7 +33,7 @@ printf '%s\\0' "$0" "$REPO_ROOT" "$PWD" "$@" > "$HOME/invocation"
 exit "${STUB_EXIT:-0}"
 '''
         self.scripts = {
-            'agents': 'agents', 'editors': 'editors', 'shell': 'shell',
+            'agents': 'agents', 'editors': 'editors', 'nvim-plugins': 'nvim-plugins', 'shell': 'shell',
             'plugins': 'shell-plugins', 'pnpm': 'pnpm', 'uv': 'uv',
             'git-ssh': 'git-ssh', 'ssh-keys': 'ssh-keys', 'macos': 'macos-defaults', 'homebrew': 'homebrew',
             'doctor': 'doctor',

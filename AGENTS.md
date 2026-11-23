@@ -41,7 +41,9 @@ Entry point: `bash bootstrap.sh`.
 - `scripts/editors.sh` — symlinks `nvim/` to `~/.config/nvim` and
   `tmux/tmux.conf` to `~/.tmux.conf` (backs up existing files first).
 - `nvim/` — kickstart-based config with guarded, existing-only plugin loading.
-  Do not restore automatic clones, builds, Mason installs, or parser downloads.
+  Plugins are installed only by `scripts/nvim-plugins.sh` (run from bootstrap or
+  `dotfiles nvim-plugins`) at the exact lockfile revisions. Neovim startup must not
+  clone, build, run Mason installs, or download parsers.
   `tmux/` — session/pane config.
 - `scripts/check-secrets.py` — redact-by-location scan of public files, index,
   and reachable history. Never print matching values or read ignored private files.

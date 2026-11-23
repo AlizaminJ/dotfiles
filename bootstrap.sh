@@ -33,6 +33,7 @@ bash "$REPO_ROOT/scripts/uv.sh"
 echo ""
 echo "=== Neovim & tmux configs ==="
 "$REPO_ROOT/scripts/editors.sh"
+bash "$REPO_ROOT/scripts/nvim-plugins.sh"
 
 echo ""
 echo "=== Modular zsh & terminal configs ==="
