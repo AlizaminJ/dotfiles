@@ -3,6 +3,9 @@
 - Run `tat` in a project to open/resume its tmux session.
 - Press **Ctrl+B**, release, then `w` for windows, `s` for sessions, `c` for a new
   window, `%` / `"` to split, arrows to change panes, or `d` to detach.
+- Switch projects from the second status line (click a session name) or with
+  **Alt+S** for the session tree. Use `z <project>` first, then `tat`, so each
+  project keeps one session named after its directory.
 - **Ctrl+R** searches shell history; `z` / `zi` jump to visited directories.
 - Git shortcuts and explicit-argument helpers live in [aliases](../shell/aliases.zsh)
   and [functions](../shell/functions.zsh). Their CLIs must already be installed.
