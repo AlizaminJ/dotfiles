@@ -90,3 +90,12 @@ get-secret() {
   print -rn -- "${decoded%.}" | command pbcopy || return
   print 'Secret copied to clipboard.'
 }
+
+# Open or switch to the tmux session for a visited project without moving this shell.
+# Usage: tz QUERY. Requires zoxide and tat; the project must already be known to zoxide.
+tz() {
+  (( $# > 0 )) || { print -u2 'Usage: tz QUERY'; return 2; }
+  local dir
+  dir="$(command zoxide query -- "$@")" || return
+  command tat "$dir"
+}
