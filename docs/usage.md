@@ -6,6 +6,8 @@
 - Open a project with `tz <name>` (zoxide match, then `tat`); it never moves the current
   shell. Switch between open projects by clicking a name in the second status line
   or with **Alt+S** for the session tree. Labels show each session's current folder.
+- Dragging or double-clicking text in tmux copies it to the macOS clipboard (Cmd+V pastes).
+  `st` reloads the tmux config; `sz` restarts the shell.
 - **Ctrl+R** searches shell history; `z` / `zi` jump to visited directories.
 - Git shortcuts and explicit-argument helpers live in [aliases](../shell/aliases.zsh)
   and [functions](../shell/functions.zsh). Their CLIs must already be installed.
