@@ -10,7 +10,18 @@ description: Review code, diffs, pull requests, or review comments for actionabl
 3. Prefer an end-user reproduction using existing tools when practical. Don't introduce a heavy test framework just to reproduce a small bug.
 4. Weigh each suggestion against complexity, maintenance, side effects, and risk. Only implement fixes when requested; explain why other suggestions aren't worth pursuing. Flag unrelated failures rather than expanding the task.
 5. For changed behavior, expect regression tests, clear names, focused functions, and useful public API documentation. Update generated files through their source/generator, not by hand.
-6. Report findings as `[CRITICAL]`, `[WARNING]`, or `[NIT]`, with file/line, concrete impact, and the smallest useful fix. Separate confirmed problems from assumptions; avoid speculative nits.
+6. Report findings using the format below. Separate confirmed problems from assumptions; avoid speculative nits.
+
+   - Start with a one-line verdict: `✅ Approve`, `💬 Approve with comments`, or `⛔ Changes requested`, plus a short summary of what was reviewed.
+   - Add a summary table, sorted by severity, with a link or `file:line` for each finding:
+
+     | # | Severity | Location | Issue |
+     |---|----------|----------|-------|
+     | 1 | 🔴 CRITICAL | `path/file.py:42` | One-line impact |
+
+   - Severities: `🔴 CRITICAL` (bug, data loss, security), `🟡 WARNING` (regression risk, missing tests), `🔵 NIT` (optional polish). Omit empty severities.
+   - Then one short section per finding, in table order: `### 1. 🔴 Title`, with **Impact** (concrete, one or two sentences), **Evidence** (confirmed vs. assumed), and **Fix** (smallest useful change, as a code block or diff when short).
+   - Finish with `**Tested:**` and `**Not verified:**` lines.
 7. When addressing PR comments, reply in the original thread and match the comment's language. Explain what changed and leave resolution to the author. If posting isn't available or authorized, draft the reply instead. Write PR titles and descriptions in English.
 8. End every review report, including reports with no findings, with a separate final line: `- <MODEL>`. Use the exact public model name/ID from trusted runtime/session metadata. If unavailable, write `- Model unknown`; never guess or expose private provider URLs/deployment details.
 
