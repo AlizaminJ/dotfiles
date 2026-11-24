@@ -63,22 +63,16 @@ if os.environ.get('FAIL_TOOL') == name:
         self.assertEqual(self.calls(), [])
 
     def test_branch_cleanup_and_logins_use_explicit_arguments(self):
-        result = self.run_shell('gclean feature-one && laws selected-profile && dlogin account-profile workspace-profile && weather "Sample City" && latency example.com')
+        result = self.run_shell('gclean feature-one && dlogin account-profile workspace-profile && weather "Sample City" && latency example.com')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.calls(), [
             ['git', 'branch', '-d', '--', 'feature-one'], ['git', 'fetch', '--prune'],
-            ['aws', 'sso', 'login', '--profile', 'selected-profile'],
             ['databricks', 'auth', 'login', '--profile', 'account-profile'],
             ['databricks', 'auth', 'login', '--profile', 'workspace-profile'],
             ['curl', '-q', '--fail', '--silent', '--show-error', 'https://wttr.in/Sample%20City'],
             ['date'], ['prettyping', 'example.com'],
         ])
         (self.home / 'calls').unlink()
-        self.assertEqual(self.run_shell('laws').returncode, 0)
-        self.assertEqual(self.calls(), [['aws', 'sso', 'login', '--profile', 'login']])
-        (self.home / 'calls').unlink()
-        self.assertEqual(self.run_shell('laws one two').returncode, 2)
-        self.assertEqual(self.calls(), [])
         self.assertNotEqual(self.run_shell('gclean feature-one', FAIL_TOOL='git').returncode, 0)
         self.assertEqual(self.calls(), [['git', 'branch', '-d', '--', 'feature-one']])
 

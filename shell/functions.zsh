@@ -22,13 +22,6 @@ weather() {
   command curl -q --fail --silent --show-error "https://wttr.in/$location"
 }
 
-# Sign in to AWS through your browser using an existing named profile (default: login).
-# Usage: laws [PROFILE]. Requires the AWS CLI with single sign-on configured.
-laws() {
-  (( $# <= 1 )) || { print -u2 'Usage: laws [PROFILE]'; return 2; }
-  command aws sso login --profile "${1:-login}"
-}
-
 # Sign in to Databricks profiles in order, stopping if any login fails.
 # Usage: dlogin PROFILE [PROFILE...]. Requires the Databricks CLI.
 dlogin() {
