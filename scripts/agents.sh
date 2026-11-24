@@ -67,9 +67,10 @@ if [[ -e "$PI_DIR/AGENTS.override.md" || -L "$PI_DIR/AGENTS.override.md" ]]; the
 fi
 
 echo "⚙️ Configuring shared agent instructions..."
-mkdir -p "$HOME/.agents" "$HOME/.claude" "$COPILOT_DIR" "$PI_DIR"
+mkdir -p "$HOME/.agents" "$HOME/.claude" "$HOME/.copilot" "$COPILOT_DIR" "$PI_DIR"
 link_file "$SOURCE" "$HOME/.agents/AGENTS.md"
 link_file "$HOME/.agents/AGENTS.md" "$PI_DIR/AGENTS.md"
+link_file "$HOME/.agents/AGENTS.md" "$HOME/.copilot/copilot-instructions.md"
 for file in "${SKILL_FILES[@]}"; do
   target="$HOME/.agents/skills/$file"
   mkdir -p "$(dirname "$target")"

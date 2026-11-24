@@ -18,7 +18,7 @@
   to the matching GitHub account yourself. New SSH profiles use macOS Keychain;
   existing marked SSH blocks aren't rewritten.
 - Put private overrides in `~/.zshrc.local`. `sz` starts a fresh shell; `cz` edits that file.
-- `dotfiles agents` links shared rules plus `code-review`, `security-review`, and
+- `dotfiles agents` links shared rules (Pi, Claude, Copilot) plus `code-review`, `security-review`, and
   `essayist`; Pi's `/reload` refreshes them. Other skills stay untouched.
 - Use `dotfiles help` for tasks, `dotfiles doctor` for read-only checks, and
   `dotfiles plugins` if the shell reports missing/stale plugins. `dotfiles nvim-plugins`

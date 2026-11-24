@@ -41,6 +41,9 @@ class AgentInstructionsTest(unittest.TestCase):
         self.assertEqual(target.resolve(), REPO / 'agents/AGENTS.md')
         self.assertEqual((self.pi / 'AGENTS.md.bak.1').read_text(), 'existing private instructions\n')
         self.assertEqual((self.pi / 'AGENTS.md.bak').read_text(), 'older backup\n')
+        copilot = self.home / '.copilot/copilot-instructions.md'
+        self.assertEqual(os.readlink(copilot), str(self.home / '.agents/AGENTS.md'))
+        self.assertEqual(copilot.resolve(), REPO / 'agents/AGENTS.md')
         self.assertFalse(self.pi.is_symlink())
         for path, expected in self.state.items():
             self.assertEqual((path.read_bytes(), path.stat().st_mtime_ns), expected)
@@ -48,6 +51,7 @@ class AgentInstructionsTest(unittest.TestCase):
     def test_repeat_run_does_not_duplicate_backups_or_rewrite_references(self):
         self.setup_agents()
         files = [self.home / '.agents/AGENTS.md', self.pi / 'AGENTS.md',
+                 self.home / '.copilot/copilot-instructions.md',
                  self.home / '.claude/CLAUDE.md',
                  self.home / 'Library/Application Support/Code/User/prompts/global.instructions.md',
                  self.home / '.agents/skills/code-review/SKILL.md',

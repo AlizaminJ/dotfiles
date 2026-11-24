@@ -58,7 +58,7 @@ Entry point: `bash bootstrap.sh`.
 - `agents/AGENTS.md` — minimal shared, tool-neutral rules; `agents/skills/` holds
   code-review, security-review, and essayist workflows. Keep this root file repository-specific.
 - `scripts/agents.sh` — links the shared file at `~/.agents/AGENTS.md` and
-  installs Pi, Claude, and VS Code Copilot references. Pi respects
+  installs Pi, Claude, GitHub Copilot (`~/.copilot/copilot-instructions.md`), and VS Code references. Pi respects
   `PI_CODING_AGENT_DIR`; only its instruction file is managed, never runtime state.
   Only the named skill files and essayist's writing guide are linked under `~/.agents/skills/`;
   unrelated skills and backups stay untouched.
