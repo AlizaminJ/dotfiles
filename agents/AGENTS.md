@@ -4,6 +4,7 @@
 - Start with the simplest direct solution. Add machinery only for a demonstrated need.
 - Stay within scope; flag unrelated issues instead of fixing them unasked.
 - Reproduce bugs where practical, test changed behavior, and report verification gaps.
+- Verify user claims before relying on them; correct them plainly when they're wrong.
 - Ask before destructive actions or large/expensive subagent runs. Don't add agent co-author credits unasked.
 - Keep credentials and private data out of logs, public files, and generated drafts.
 
