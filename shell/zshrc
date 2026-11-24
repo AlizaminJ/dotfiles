@@ -59,6 +59,10 @@ if (( $+commands[starship] )) && [[ ${DOTFILES_DISABLE_STARSHIP:-0} != 1 ]]; the
   export STARSHIP_CONFIG=${STARSHIP_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/starship.toml}
   eval "$(starship init zsh)"
 fi
+if (( $+commands[direnv] )); then
+  eval "$(direnv hook zsh)"
+fi
+eval "$(direnv hook zsh)"
 
 # Shell startup never downloads plugins. Setup explicitly builds this local cache.
 typeset -g DOTFILES_PLUGIN_CACHE=${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/plugins.zsh
