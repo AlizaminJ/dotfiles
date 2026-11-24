@@ -58,7 +58,7 @@ if os.environ.get('FAIL_TOOL') == name:
         return [json.loads(line) for line in path.read_text().splitlines()] if path.exists() else []
 
     def test_missing_targets_do_not_invoke_tools(self):
-        result = self.run_shell('for helper in gclean latency weather laws dlogin awslogin get-secret; do "$helper"; [[ $? == 2 ]] || exit 1; done')
+        result = self.run_shell('for helper in gclean latency weather dlogin awslogin get-secret; do "$helper"; [[ $? == 2 ]] || exit 1; done')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.calls(), [])
 
@@ -74,6 +74,11 @@ if os.environ.get('FAIL_TOOL') == name:
             ['date'], ['prettyping', 'example.com'],
         ])
         (self.home / 'calls').unlink()
+        self.assertEqual(self.run_shell('laws').returncode, 0)
+        self.assertEqual(self.calls(), [['aws', 'sso', 'login', '--profile', 'login']])
+        (self.home / 'calls').unlink()
+        self.assertEqual(self.run_shell('laws one two').returncode, 2)
+        self.assertEqual(self.calls(), [])
         self.assertNotEqual(self.run_shell('gclean feature-one', FAIL_TOOL='git').returncode, 0)
         self.assertEqual(self.calls(), [['git', 'branch', '-d', '--', 'feature-one']])
 
