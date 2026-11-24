@@ -134,7 +134,9 @@ fi
         result = subprocess.run(['/bin/bash', str(REPO / 'scripts/homebrew.sh')], env=env,
                                 capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertEqual(self.calls(), [f'brew|bundle|--file={checkout}/Brewfile'])
+        self.assertEqual(self.calls(), ['brew|tap|databricks/tap',
+                                        'brew|trust|--formula|databricks/tap/databricks',
+                                        f'brew|bundle|--file={checkout}/Brewfile'])
 
     def test_bootstrap_installs_before_configuring_development_defaults(self):
         text = (REPO / 'bootstrap.sh').read_text()

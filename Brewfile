@@ -1,3 +1,5 @@
+tap "databricks/tap"
+
 brew "git"
 brew "gh"
 brew "jq"
@@ -17,6 +19,7 @@ brew "direnv"
 brew "awscli"
 brew "tfenv"
 brew "nvm"
+brew "databricks/tap/databricks"
 
 cask "wezterm"
 cask "visual-studio-code"
