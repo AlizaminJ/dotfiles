@@ -6,13 +6,15 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=scripts/config.sh
 source "$REPO_ROOT/scripts/config.sh"
 
-echo "🚀 Starting automated Mac setup..."
+OS="$(uname -s)"
+
+echo "🚀 Starting automated setup on $OS..."
 
 echo ""
 echo "=== Prerequisites ==="
 bash "$REPO_ROOT/scripts/prerequisites.sh"
 # Keep tools installed by the child script available to subsequent steps.
-export PATH="$HOME/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/local/sbin:$PATH"
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/bin:/usr/local/sbin:$PATH"
 
 echo ""
 echo "=== Shared agent instructions ==="
@@ -21,6 +23,12 @@ bash "$REPO_ROOT/scripts/agents.sh"
 echo ""
 echo "=== Homebrew & packages ==="
 "$REPO_ROOT/scripts/homebrew.sh"
+
+if [[ "$OS" == Linux ]]; then
+  echo ""
+  echo "=== WezTerm & Nerd Font (Linux) ==="
+  bash "$REPO_ROOT/scripts/linux-terminal.sh"
+fi
 
 echo ""
 echo "=== pnpm supply-chain defaults ==="
@@ -40,9 +48,11 @@ echo "=== Modular zsh & terminal configs ==="
 bash "$REPO_ROOT/scripts/shell-plugins.sh"
 bash "$REPO_ROOT/scripts/shell.sh"
 
-echo ""
-echo "=== macOS defaults ==="
-"$REPO_ROOT/scripts/macos-defaults.sh"
+if [[ "$OS" == Darwin ]]; then
+  echo ""
+  echo "=== macOS defaults ==="
+  "$REPO_ROOT/scripts/macos-defaults.sh"
+fi
 
 echo ""
 echo "=== SSH keys & manual GitHub registration ==="
@@ -53,4 +63,4 @@ echo "=== Git & SSH multi-profile ==="
 "$REPO_ROOT/scripts/git-ssh.sh"
 
 echo ""
-echo "🎉 Mac setup complete! Safe to re-run bootstrap.sh anytime."
+echo "🎉 Setup complete! Safe to re-run bootstrap.sh anytime."

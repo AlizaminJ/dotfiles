@@ -337,6 +337,9 @@ do
     end,
   }
 
+  -- :DiffviewOpen shows all changed files side by side, like `git diff`.
+  vim.pack.add { gh 'sindrets/diffview.nvim' }
+
   -- Useful plugin to show you pending keybinds.
   vim.pack.add { gh 'folke/which-key.nvim' }
   require('which-key').setup {
@@ -374,6 +377,10 @@ do
   -- Highlight todo, notes, etc in comments
   vim.pack.add { gh 'folke/todo-comments.nvim' }
   require('todo-comments').setup { signs = false }
+
+  -- Render markdown in-buffer (pinned v8.14.0); uses Neovim's bundled markdown parsers.
+  vim.pack.add { gh 'MeanderingProgrammer/render-markdown.nvim' }
+  require('render-markdown').setup {}
 
   -- [[ mini.nvim ]]
   --  A collection of various small independent plugins/modules
@@ -493,6 +500,7 @@ do
   vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
   vim.keymap.set({ 'n', 'v' }, '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
   vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
+  vim.keymap.set({ 'n', 'i' }, '<M-F>', builtin.live_grep, { desc = 'Search by grep (Alt-Shift-f)' })
   vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
   vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
   vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })

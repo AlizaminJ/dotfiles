@@ -77,7 +77,7 @@ write_git_config "$HOME/.gitconfig" \
   "includeIf.gitdir:$WORK_ROOT/.path" "$HOME/.gitconfig-work" \
   core.excludesfile "$HOME/.gitignore_global"
 
-echo "🙈 Creating global gitignore for macOS system files..."
+echo "🙈 Creating global gitignore for system files..."
 write_file ~/.gitignore_global << EOF
 .DS_Store
 EOF
@@ -103,6 +103,7 @@ Host github.com
     IdentityFile ~/.ssh/$WORK_KEY_NAME
     IdentitiesOnly yes
     AddKeysToAgent yes
+    IgnoreUnknown UseKeychain
     UseKeychain yes
 
 # Personal GitHub Profile
@@ -112,6 +113,7 @@ Host github.com-personal
     IdentityFile ~/.ssh/$PERSONAL_KEY_NAME
     IdentitiesOnly yes
     AddKeysToAgent yes
+    IgnoreUnknown UseKeychain
     UseKeychain yes
 EOF
 fi
@@ -122,6 +124,6 @@ echo "✅ Git/SSH setup complete!"
 echo "--------------------------------------------------------"
 echo "Next Steps:"
 echo "1. Run dotfiles ssh-keys for public-key copy commands; add keys to GitHub manually."
-echo "2. First SSH use can remember passphrases in the macOS Keychain."
+echo "2. On macOS, first SSH use can remember passphrases in the Keychain."
 echo "3. Work SSH clones use github.com; personal SSH clones use github.com-personal."
 echo "--------------------------------------------------------"

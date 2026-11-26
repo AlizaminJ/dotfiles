@@ -4,8 +4,8 @@ Instructions for AI coding agents (Copilot, etc.) working in this repository.
 
 ## Purpose
 
-This repo automates setting up a new Mac: Homebrew + packages, macOS system
-defaults, and multi-profile Git/SSH config (personal vs. work GitHub identity).
+This repo automates setting up a new Mac or Linux machine: Homebrew + packages, macOS system
+defaults (macOS only), and multi-profile Git/SSH config (personal vs. work GitHub identity).
 Entry point: `bash bootstrap.sh`.
 
 ## Layout
@@ -21,12 +21,14 @@ Entry point: `bash bootstrap.sh`.
 - `scripts/shell.sh` — backs up and links zsh, Starship, and WezTerm configs.
 - `scripts/shell-plugins.sh` — prepares shell plugins through Antidote.
   Startup must not download plugins or run an automatic updater.
-- `shell/`, `wezterm/` — macOS settings; generic helpers require explicit targets.
+- `shell/`, `wezterm/` — OS-neutral settings; generic helpers require explicit targets.
   Keep private aliases, profiles, locations, and project paths out of Git.
   WezTerm handles rendering only; leave pane/session shortcuts to tmux.
 - `scripts/uv.sh`, `uv/uv.toml` — user uv age/build preferences; does not install uv.
 - `docs/onboarding.md`, `docs/usage.md` — setup, everyday commands, and recovery.
   Safety policy lives in shared rules/skills; installer evidence stays with its code.
+- `scripts/linux-terminal.sh` — Linux-only: installs latest WezTerm and Nerd Font into the home
+  directory (checksum-verified, no sudo, nothing executed). Replaces the macOS casks for these two apps.
 - `scripts/macos-defaults.sh` — `defaults write` tweaks for Finder/Dock/keyboard.
 - `scripts/doctor.sh` — read-only health check, run manually with an optional
   project directory. Reports issues without installing or repairing anything.
@@ -48,7 +50,7 @@ Entry point: `bash bootstrap.sh`.
 - `scripts/check-secrets.py` — redact-by-location scan of public files, index,
   and reachable history. Never print matching values or read ignored private files.
 - `.github/workflows/checks.yml` — pinned checkout, Ubuntu lint infrastructure,
-  macOS syntax/tests/secrets. No package installs or bootstrap in CI.
+  macOS and Linux syntax/tests/secrets (Linux skips tests needing zsh, tmux, or nvim). No package installs or bootstrap in CI.
 - `bin/dotfiles` — thin task dispatcher; calls existing scripts from any directory.
   Preserve the caller directory for doctor checks; run tests from the checkout.
   `--dry-run` prints commands only, without sourcing configuration or running tasks.
@@ -91,5 +93,8 @@ Entry point: `bash bootstrap.sh`.
 2. Parse zsh files separately; run ShellCheck on Bash files if available.
 3. Run `./bin/dotfiles test` and `./bin/dotfiles secrets`.
 4. Check repeat-run safety: no duplicate config or loss of un-backed-up data.
-5. Preserve the macOS-only scope. Keep examples anonymous and never publish
-   local settings, agent state, credentials, or personal absolute paths.
+5. Keep macOS and Linux on one code path; branch on `uname -s` only where the platform forces it
+   (clipboard tool, Keychain, system defaults, apps without a Linux cask). New behavior
+   must work on both. Apps that cannot be installed identically on both systems do not belong
+   in the Brewfile.
+   Keep examples anonymous and never publish local settings, agent state, credentials, or personal absolute paths.

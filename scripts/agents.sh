@@ -3,7 +3,11 @@ set -euo pipefail
 
 REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 SOURCE="$REPO_ROOT/agents/AGENTS.md"
-COPILOT_DIR="$HOME/Library/Application Support/Code/User/prompts"
+if [[ "$(uname -s)" == Darwin ]]; then
+  COPILOT_DIR="$HOME/Library/Application Support/Code/User/prompts"
+else
+  COPILOT_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/Code/User/prompts"
+fi
 PI_DIR="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}"
 SKILL_FILES=(
   code-review/SKILL.md

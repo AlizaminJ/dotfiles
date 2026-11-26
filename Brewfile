@@ -21,12 +21,18 @@ brew "tfenv"
 brew "nvm"
 brew "databricks/tap/databricks"
 
-cask "wezterm"
-cask "visual-studio-code"
-cask "font-jetbrains-mono-nerd-font"
-cask "bitwarden"
-cask "todoist-app"
-cask "obsidian"
-cask "flux-app"
+# Clipboard tools for Neovim and the clip helper on Linux; macOS ships pbcopy.
+if OS.linux?
+  brew "wl-clipboard"
+  brew "xclip"
+end
 
-cask "docker-desktop"
+# Only apps that install the same way on macOS and Linux belong here.
+cask "visual-studio-code"
+
+# Other GUI apps (Docker, Bitwarden, Todoist, Obsidian...) are installed manually.
+# Linux gets WezTerm and the font from scripts/linux-terminal.sh.
+if OS.mac?
+  cask "wezterm"
+  cask "font-jetbrains-mono-nerd-font"
+end

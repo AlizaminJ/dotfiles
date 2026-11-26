@@ -12,8 +12,8 @@ source "$DOTFILES_SHELL_DIR/functions.zsh"
 # Private settings can override shared shortcuts.
 [[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
 
-# GUI terminals on a fresh Mac may not inherit Homebrew's PATH.
-for prefix in /opt/homebrew /usr/local; do
+# GUI terminals may not inherit Homebrew's PATH.
+for prefix in /opt/homebrew /home/linuxbrew/.linuxbrew /usr/local; do
   if [[ -x "$prefix/bin/brew" ]]; then
     typeset -g HOMEBREW_PREFIX=$prefix
     path=("$prefix/bin" "$prefix/sbin" $path)

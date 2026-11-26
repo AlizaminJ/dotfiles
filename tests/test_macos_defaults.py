@@ -33,7 +33,10 @@ state.write_text(json.dumps(values, sort_keys=True))
 with (pathlib.Path(os.environ['HOME']) / 'restarts.txt').open('a') as log:
     log.write(' '.join(sys.argv[1:]) + '\\n')
 ''')
+            uname = bin_dir / 'uname'
+            uname.write_text('#!/bin/bash\necho "${TEST_OS:-Darwin}"\n')
             defaults.chmod(0o755)
+            uname.chmod(0o755)
             killall.chmod(0o755)
             env = dict(os.environ, HOME=directory, PATH=str(bin_dir) + os.pathsep + os.environ['PATH'])
             command = ['bash', str(REPO / 'scripts/macos-defaults.sh')]
@@ -57,6 +60,11 @@ with (pathlib.Path(os.environ['HOME']) / 'restarts.txt').open('a') as log:
             self.assertEqual(values, expected)
             self.assertTrue((home / 'Screenshots').is_dir())
             self.assertEqual((home / 'restarts.txt').read_text().splitlines(), ['Finder', 'Dock'] * 2)
+
+            (home / 'preferences.json').unlink()
+            result = subprocess.run(command, env=dict(env, TEST_OS='Linux'), check=True, capture_output=True, text=True)
+            self.assertIn('skipped', result.stdout)
+            self.assertFalse((home / 'preferences.json').exists())
 
 
 if __name__ == '__main__':

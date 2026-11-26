@@ -26,6 +26,7 @@ usage() {
     '  ssh-keys               Create/reuse keys; print public-key clipboard commands' \
     '  git-ssh                Apply workspace Git identities and SSH configuration' \
     '  macos                  Apply macOS preferences and restart Finder/Dock' \
+    '  linux-terminal         Linux: install latest WezTerm and JetBrainsMono Nerd Font' \
     '  homebrew               Install/update Brewfile packages with Homebrew' \
     '  secrets                Scan public files, index, and available Git history' \
     '  test                   Run repository tests' \
@@ -56,7 +57,7 @@ case "$COMMAND" in
     RUN=(bash "$REPO_ROOT/scripts/$COMMAND.sh")
     MAX_ARGS=1
     ;;
-  agents|editors|nvim-plugins|shell|pnpm|uv|ssh-keys|git-ssh|macos|homebrew|plugins)
+  agents|editors|nvim-plugins|shell|pnpm|uv|ssh-keys|git-ssh|macos|homebrew|plugins|linux-terminal)
     SCRIPT="$COMMAND"
     [[ "$COMMAND" != macos ]] || SCRIPT=macos-defaults
     [[ "$COMMAND" != plugins ]] || SCRIPT=shell-plugins

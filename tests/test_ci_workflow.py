@@ -37,7 +37,7 @@ class WorkflowTest(unittest.TestCase):
                     self.assertEqual(step['with']['submodules'], False)
                     self.assertEqual(step['with']['lfs'], False)
                     actions.append(step['uses'])
-        self.assertEqual(len(actions), 2)
+        self.assertEqual(len(actions), 3)
         self.assertEqual(len(set(actions)), 1)
 
     def test_lint_uses_preinstalled_shellcheck_and_tests_use_system_bash(self):
@@ -53,6 +53,17 @@ class WorkflowTest(unittest.TestCase):
         self.assertIn('/bin/bash bin/dotfiles secrets', scripts)
         self.assertEqual(macos['steps'][0]['with']['fetch-depth'], 0)
         for step in macos['steps']:
+            if 'run' in step:
+                self.assertTrue(step['shell'].startswith('/bin/bash --noprofile --norc'))
+
+    def test_linux_job_mirrors_macos_checks_without_zsh(self):
+        linux = self.workflow['jobs']['linux']
+        self.assertEqual(linux['runs-on'], 'ubuntu-24.04')
+        scripts = '\n'.join(step.get('run', '') for step in linux['steps'])
+        for command in ['/bin/bash -n', '/bin/bash bin/dotfiles test', '/bin/bash bin/dotfiles secrets']:
+            self.assertIn(command, scripts)
+        self.assertEqual(linux['steps'][0]['with']['fetch-depth'], 0)
+        for step in linux['steps']:
             if 'run' in step:
                 self.assertTrue(step['shell'].startswith('/bin/bash --noprofile --norc'))
 

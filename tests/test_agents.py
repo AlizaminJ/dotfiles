@@ -3,11 +3,16 @@
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
 
 REPO = Path(__file__).resolve().parents[1]
+
+
+VSCODE_PROMPTS = ('Library/Application Support/Code/User/prompts' if sys.platform == 'darwin'
+                  else '.config/Code/User/prompts')
 
 
 class AgentInstructionsTest(unittest.TestCase):
@@ -17,7 +22,8 @@ class AgentInstructionsTest(unittest.TestCase):
         self.home = Path(self.temp.name)
         self.pi = self.home / '.pi/agent'
         self.pi.mkdir(parents=True)
-        self.env = dict(os.environ, HOME=str(self.home), REPO_ROOT=str(REPO), PI_CODING_AGENT_DIR=str(self.pi))
+        self.env = dict(os.environ, HOME=str(self.home), REPO_ROOT=str(REPO), PI_CODING_AGENT_DIR=str(self.pi),
+                        XDG_CONFIG_HOME=str(self.home / '.config'))
         self.state = {}
         for name in ['auth.json', 'settings.json', 'trust.json', 'models.json', 'mcp.json',
                      'sessions/local.jsonl', 'extensions/local.ts', 'skills/local/SKILL.md', 'npm/local/cache']:
@@ -53,7 +59,7 @@ class AgentInstructionsTest(unittest.TestCase):
         files = [self.home / '.agents/AGENTS.md', self.pi / 'AGENTS.md',
                  self.home / '.copilot/copilot-instructions.md',
                  self.home / '.claude/CLAUDE.md',
-                 self.home / 'Library/Application Support/Code/User/prompts/global.instructions.md',
+                 self.home / VSCODE_PROMPTS / 'global.instructions.md',
                  self.home / '.agents/skills/code-review/SKILL.md',
                  self.home / '.agents/skills/security-review/SKILL.md',
                  self.home / '.agents/skills/essayist/SKILL.md',

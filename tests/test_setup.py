@@ -121,8 +121,21 @@ fi
         self.assertEqual(result.returncode, 9)
         self.assertEqual(self.calls(), ['uv|python install --default'])
 
-    def test_non_macos_does_not_run_installers(self):
-        self.assertNotEqual(self.run_setup(TEST_OS='Linux').returncode, 0)
+    def test_unsupported_os_does_not_run_installers(self):
+        self.assertNotEqual(self.run_setup(TEST_OS='Plan9').returncode, 0)
+        self.assertEqual(self.calls(), [])
+
+    def test_linux_uses_the_same_homebrew_uv_python_chain(self):
+        self.mock('git', 'exit 0\n')
+        result = self.run_setup(TEST_OS='Linux')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(self.calls(), ['curl', 'brew|install|uv', 'uv|python install --default'])
+
+    def test_linux_without_git_stops_before_installers(self):
+        env = dict(self.env, PATH=str(self.tools), TEST_OS='Linux')
+        result = subprocess.run(['/bin/bash', str(self.script)], env=env,
+                                capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
         self.assertEqual(self.calls(), [])
 
     def test_brewfile_uses_normal_bundle_without_age_or_upgrade_flags(self):

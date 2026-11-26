@@ -36,7 +36,7 @@ exit "${STUB_EXIT:-0}"
             'agents': 'agents', 'editors': 'editors', 'nvim-plugins': 'nvim-plugins', 'shell': 'shell',
             'plugins': 'shell-plugins', 'pnpm': 'pnpm', 'uv': 'uv',
             'git-ssh': 'git-ssh', 'ssh-keys': 'ssh-keys', 'macos': 'macos-defaults', 'homebrew': 'homebrew',
-            'doctor': 'doctor',
+            'linux-terminal': 'linux-terminal', 'doctor': 'doctor',
         }
         for script in self.scripts.values():
             (self.repo / 'scripts' / (script + '.sh')).write_text(self.stub)

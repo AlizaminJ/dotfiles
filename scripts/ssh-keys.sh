@@ -2,7 +2,6 @@
 # Run key setup explicitly; private keys and passphrases never enter local config.
 set -euo pipefail
 
-[[ "$(uname -s)" == Darwin ]] || { echo "❌ SSH setup supports macOS only." >&2; exit 1; }
 REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 # shellcheck source=scripts/config.sh
 source "$REPO_ROOT/scripts/config.sh"

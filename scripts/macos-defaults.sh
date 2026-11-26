@@ -2,6 +2,8 @@
 # Applies common macOS system preferences. `defaults write` is idempotent (safe to re-run).
 set -euo pipefail
 
+[[ "$(uname -s)" == Darwin ]] || { echo "↪ macOS defaults skipped: not running on macOS."; exit 0; }
+
 echo "🖥️ Applying macOS defaults..."
 
 echo "  ↪ Finder: show hidden files"

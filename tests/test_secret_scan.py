@@ -128,6 +128,10 @@ class SecretScanTest(unittest.TestCase):
         self.assertIn('personal home path', result.stdout)
         self.assertNotIn(path, result.stdout + result.stderr)
 
+    def test_shared_linuxbrew_prefix_is_not_a_personal_path(self):
+        (self.repo / 'settings.txt').write_text('/home/linuxbrew/.linuxbrew/bin')
+        self.assertEqual(self.scan().returncode, 0)
+
 
 if __name__ == '__main__':
     unittest.main()

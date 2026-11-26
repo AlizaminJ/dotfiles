@@ -65,3 +65,32 @@ jobs:
         run: |
           command -v python3
           /bin/bash bin/dotfiles test
+
+  linux:
+    name: Linux syntax and tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+          submodules: false
+          lfs: false
+          fetch-depth: 0
+      - name: Scan public files and Git history for secrets
+        shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+        run: /bin/bash bin/dotfiles secrets
+      - name: Check Bash syntax
+        shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+        run: |
+          for script in bootstrap.sh bin/* scripts/*.sh; do
+            /bin/bash -n "$script"
+          done
+      - name: Run tests without provisioning the runner
+        shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          command -v python3
+          /bin/bash bin/dotfiles test

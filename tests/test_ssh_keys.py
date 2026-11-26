@@ -113,21 +113,30 @@ class LocalKeyTest(unittest.TestCase):
             with self.subTest(name=name), self.assertRaises(keys.SetupError):
                 keys.key_name(name)
 
-    def test_main_prints_only_manual_commands_without_touching_accounts_or_clipboard(self):
+    def run_main(self, platform):
         self.pair()
         (self.ssh / 'id_work').write_text('fixture-private-data\n')
         (self.ssh / 'id_work.pub').write_text(PUBLIC + '\n')
         env = dict(PERSONAL_KEY_NAME='id_personal', WORK_KEY_NAME='id_work')
         with patch.dict(os.environ, env, clear=True), patch.object(keys.Path, 'home', return_value=self.ssh.parent), \
-             patch.object(keys.os, 'umask'), patch.object(keys.sys.stdin, 'isatty', return_value=False):
+             patch.object(keys.os, 'umask'), patch.object(keys.sys.stdin, 'isatty', return_value=False), \
+             patch.object(keys.sys, 'platform', platform):
             keys.main()
-        output = self.output.getvalue()
+        return self.output.getvalue()
+
+    def test_main_prints_only_manual_commands_without_touching_accounts_or_clipboard(self):
+        output = self.run_main('darwin')
         self.assertIn('Personal: pbcopy < "$HOME/.ssh/id_personal.pub"', output)
         self.assertIn('Work: pbcopy < "$HOME/.ssh/id_work.pub"', output)
         self.assertIn('https://github.com/settings/ssh/new', output)
         self.assertIn('nothing was copied, opened, or uploaded', output)
         for value in ['fixture-private-data', BLOB, 'private-comment']:
             self.assertNotIn(value, output)
+
+    def test_linux_prints_a_linux_clipboard_command(self):
+        output = self.run_main('linux')
+        self.assertIn('wl-copy', output)
+        self.assertNotIn('pbcopy', output)
 
 
 class FingerprintTest(unittest.TestCase):

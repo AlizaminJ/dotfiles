@@ -88,8 +88,6 @@ def ensure_key(directory, name, role, interactive):
 
 
 def main():
-    if sys.platform != 'darwin':
-        raise SetupError('SSH setup supports macOS only.')
     os.umask(0o077)
     names = [key_name(os.environ.get(name, '')) for name in ['PERSONAL_KEY_NAME', 'WORK_KEY_NAME']]
     if names[0].lower() == names[1].lower():
@@ -102,9 +100,10 @@ def main():
     directory.chmod(0o700)
     for name, role in zip(names, ['personal', 'work']):
         ensure_key(directory, name, role, interactive)
+    copy_command = 'pbcopy' if sys.platform == 'darwin' else 'wl-copy  # or: xclip -selection clipboard'
     print('🔒 Add each public key manually to its matching GitHub account:')
     for name, role in zip(names, ['personal', 'work']):
-        print(f'  ↪ {role.capitalize()}: pbcopy < "$HOME/.ssh/{name}.pub"')
+        print(f'  ↪ {role.capitalize()}: {copy_command} < "$HOME/.ssh/{name}.pub"')
     print('  ↪ Sign into the matching account and open https://github.com/settings/ssh/new')
     print('  ↪ Choose Authentication Key, paste the public key, and save. Repeat for the other account.')
     print('  ↪ Commands were printed only; nothing was copied, opened, or uploaded.')

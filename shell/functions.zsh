@@ -69,7 +69,23 @@ awslogin() {
   fi
 }
 
-# Copy a Databricks secret's decoded value to the Mac clipboard, not the terminal.
+# Copy stdin to the system clipboard on macOS and Linux; falls back to OSC 52 (works over SSH and in tmux).
+clip() {
+  emulate -L zsh
+  if (( $+commands[pbcopy] )); then command pbcopy
+  elif [[ -n ${WAYLAND_DISPLAY:-} ]] && (( $+commands[wl-copy] )); then command wl-copy
+  elif [[ -n ${DISPLAY:-} ]] && (( $+commands[xclip] )); then command xclip -selection clipboard
+  elif [[ -n ${DISPLAY:-} ]] && (( $+commands[xsel] )); then command xsel --clipboard --input
+  elif (( $+commands[base64] )); then
+    local data
+    data="$(command base64 | command tr -d '\n')" || return
+    printf '\e]52;c;%s\a' "$data" > /dev/tty
+  else
+    print -u2 'No clipboard tool found.'; return 1
+  fi
+}
+
+# Copy a Databricks secret's decoded value to the system clipboard, not the terminal.
 # Usage: get-secret SECRET_NAME PROFILE SCOPE. Requires an authenticated Databricks CLI, jq, and Python 3.
 # Failed lookups/decodes leave the clipboard alone. Clipboard managers may retain copied secrets.
 get-secret() {
@@ -80,7 +96,7 @@ get-secret() {
   encoded="$(command databricks secrets get-secret "$3" "$1" --profile "$2" | command jq -er '.value | select(type=="string" and length>0)' 2>/dev/null)" || return
   # Decode strictly before touching the clipboard; the final dot preserves trailing newlines.
   decoded="$(print -rn -- "$encoded" | command python3 -c 'import base64, sys; sys.stdout.buffer.write(base64.b64decode(sys.stdin.buffer.read(), validate=True) + b".")' 2>/dev/null)" || { print -u2 'Secret decoding failed; clipboard unchanged.'; return 1; }
-  print -rn -- "${decoded%.}" | command pbcopy || return
+  print -rn -- "${decoded%.}" | clip || return
   print 'Secret copied to clipboard.'
 }
 

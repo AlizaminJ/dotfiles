@@ -1,8 +1,16 @@
 #!/bin/bash
 set -euo pipefail
 
-export PATH="$HOME/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/local/sbin:$PATH"
-[[ "$(uname -s)" == Darwin ]] || { echo "❌ Setup requires macOS." >&2; exit 1; }
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/bin:/usr/local/sbin:$PATH"
+case "$(uname -s)" in
+  Darwin) ;;
+  Linux)
+    for tool in curl git; do
+      command -v "$tool" >/dev/null 2>&1 || { echo "❌ Install $tool with your package manager first; Homebrew needs it." >&2; exit 1; }
+    done
+    ;;
+  *) echo "❌ Setup requires macOS or Linux." >&2; exit 1 ;;
+esac
 
 if ! command -v brew >/dev/null 2>&1; then
   echo "⚙️ Installing Homebrew..."

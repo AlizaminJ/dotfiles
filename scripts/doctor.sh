@@ -17,16 +17,18 @@ fi
 TARGET="$(cd "$TARGET" && pwd -P)"
 
 echo "🩺 Checking dotfiles setup (no changes will be made)..."
-if [[ "$(uname -s)" == Darwin ]]; then
-  pass "macOS ($(uname -m))"
-  if xcode-select -p >/dev/null 2>&1; then
-    pass "Xcode Command Line Tools available"
-  else
-    fail "Xcode Command Line Tools missing"
-  fi
-else
-  warn "This setup targets macOS; macOS-only checks skipped"
-fi
+case "$(uname -s)" in
+  Darwin)
+    pass "macOS ($(uname -m))"
+    if xcode-select -p >/dev/null 2>&1; then
+      pass "Xcode Command Line Tools available"
+    else
+      fail "Xcode Command Line Tools missing"
+    fi
+    ;;
+  Linux) pass "Linux ($(uname -m))" ;;
+  *) warn "This setup targets macOS and Linux; OS-specific checks skipped" ;;
+esac
 
 for tool in brew git gh nvim tmux rg fd tree-sitter pnpm starship zoxide fzf; do
   if command -v "$tool" >/dev/null 2>&1; then
@@ -117,7 +119,11 @@ if [[ -f "$HOME/.claude/CLAUDE.md" ]] && grep -qFx '@~/.agents/AGENTS.md' "$HOME
 else
   fail "Claude shared-instructions reference missing"
 fi
-COPILOT="$HOME/Library/Application Support/Code/User/prompts/global.instructions.md"
+if [[ "$(uname -s)" == Darwin ]]; then
+  COPILOT="$HOME/Library/Application Support/Code/User/prompts/global.instructions.md"
+else
+  COPILOT="${XDG_CONFIG_HOME:-$HOME/.config}/Code/User/prompts/global.instructions.md"
+fi
 if [[ -f "$COPILOT" ]] && grep -qF "$HOME/.agents/AGENTS.md" "$COPILOT"; then
   pass "Copilot references shared instructions"
 else

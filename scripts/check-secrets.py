@@ -16,7 +16,7 @@ PATTERNS = {
     'service token': re.compile(r'\b(?:xox[baprs]-[A-Za-z0-9-]{20,}|sk_(?:live|test)_[A-Za-z0-9]{20,}|sk-(?:proj-|ant-)?[A-Za-z0-9_-]{24,})\b'),
     'credential assignment': re.compile(r'''(?i)\b[A-Za-z0-9_]*(?:password|token|api[_-]?key|secret)[A-Za-z0-9_]*\s*[=:]\s*["'][A-Za-z0-9_+/=-]{24,}["']'''),
     'URL credentials': re.compile(r'https?://[^\s/:@]+:[^\s/@]+@'),
-    'personal home path': re.compile(r'/(?:Users|home)/[A-Za-z0-9_.-]+/'),
+    'personal home path': re.compile(r'/(?:Users|home)/(?!linuxbrew/)[A-Za-z0-9_.-]+/'),
 }
 PRIVATE_NAMES = {'.env', '.netrc', '.npmrc', 'config.local.sh', '.zshrc.local', '.wezterm.local.lua',
                  'auth.json', 'trust.json', 'credentials', 'credentials.json', 'id_rsa', 'id_ed25519', 'id_ecdsa'}

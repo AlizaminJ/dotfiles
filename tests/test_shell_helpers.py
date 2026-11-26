@@ -4,6 +4,7 @@ import base64
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -13,6 +14,7 @@ import unittest
 REPO = Path(__file__).resolve().parents[1]
 
 
+@unittest.skipUnless(shutil.which('zsh'), 'zsh unavailable')
 class ShellHelpersTest(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()

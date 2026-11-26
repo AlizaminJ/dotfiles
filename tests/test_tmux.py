@@ -3,6 +3,7 @@
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -12,6 +13,7 @@ import unittest
 REPO = Path(__file__).resolve().parents[1]
 
 
+@unittest.skipUnless(shutil.which('tmux'), 'tmux unavailable')
 class ProjectSessionTest(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
